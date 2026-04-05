@@ -1,0 +1,54 @@
+databases:
+  - name: ai-company-db
+    databaseName: ai_company
+    plan: free
+
+services:
+  # ── Web Service (FastAPI + React) ────────────────────────────────────────────
+  - type: web
+    name: ai-company-platform
+    runtime: python
+    plan: starter
+    buildCommand: |
+      cd frontend && npm install && npm run build && cd ..
+      pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-company-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: NODE_VERSION
+        value: "20.0.0"
+
+  # ── Background Worker (24/7 AI Agent Executor) ────────────────────────────
+  - type: worker
+    name: ai-company-worker
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python worker.py
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-company-db
+          property: connectionString
+      - key: SECRET_KEY
+        fromService:
+          name: ai-company-platform
+          type: web
+          envVarKey: SECRET_KEY
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.11.0"
