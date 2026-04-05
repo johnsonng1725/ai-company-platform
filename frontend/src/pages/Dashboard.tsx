@@ -130,8 +130,8 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-2 gap-4">
               {empList.map((emp) => (
-                <EmployeeCard key={emp.id} employee={emp} onRun={handleRun} onDelete={handleDelete}
-                              onEdit={() => navigate(`/c/${cid}/employees`)} />
+                <EmployeeCard key={emp.id} employee={emp} companyId={cid} onRun={handleRun} onDelete={handleDelete}
+                              onChat={(e) => navigate(`/c/${cid}/employees/${e.id}/chat`)} />
               ))}
             </div>
           )}

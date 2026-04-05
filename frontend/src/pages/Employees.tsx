@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Plus, X, Loader2 } from 'lucide-react'
 import { employees as employeesApi } from '../lib/api'
 import type { Employee } from '../lib/api'
@@ -171,6 +171,7 @@ function EmployeeModal({ companyId, editing, onClose, onSaved }: {
 
 export default function Employees() {
   const { companyId } = useParams<{ companyId: string }>()
+  const navigate = useNavigate()
   const cid = Number(companyId)
   const [list, setList]           = useState<Employee[]>([])
   const [loading, setLoading]     = useState(true)
@@ -222,8 +223,8 @@ export default function Employees() {
       ) : (
         <div className="grid grid-cols-3 gap-4">
           {list.map((emp) => (
-            <EmployeeCard key={emp.id} employee={emp} onRun={handleRun} onDelete={handleDelete}
-                          onEdit={(e) => { setEditing(e); setShowModal(true) }} />
+            <EmployeeCard key={emp.id} employee={emp} companyId={cid} onRun={handleRun} onDelete={handleDelete}
+                          onChat={(e) => navigate(`/c/${cid}/employees/${e.id}/chat`)} />
           ))}
         </div>
       )}
