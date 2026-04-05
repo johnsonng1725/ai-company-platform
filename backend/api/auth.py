@@ -30,19 +30,14 @@ def register(data: schemas.UserRegister, db: Session = Depends(get_db)):
         description="My one-person company powered by AI employees.",
     )
     db.add(company)
+    db.flush()  # get company.id without committing yet
+
     db.add(models.ActivityLog(
-        company_id=None,  # will update after commit
+        company_id=company.id,
         employee_id=None,
         level="success",
-        message=f"🎉 Welcome! Your AI company has been created. Hire your first employee to get started.",
+        message="🎉 Welcome! Your AI company has been created. Hire your first employee to get started.",
     ))
-    db.commit()
-    db.refresh(company)
-
-    # Fix the activity log company_id now that we have it
-    db.query(models.ActivityLog).filter(
-        models.ActivityLog.company_id == None
-    ).update({"company_id": company.id})
     db.commit()
 
     token = create_access_token({"sub": str(user.id)})
