@@ -50,12 +50,19 @@ export default function Layout() {
     employeesApi.list(cid).then(setEmpList)
     fetchMeetings(cid).then(setMeetings)
 
-    // Refresh employee statuses every 8s
+    // Refresh employee statuses + meetings every 8s
     const interval = setInterval(() => {
       employeesApi.list(cid).then(setEmpList).catch(() => {})
+      fetchMeetings(cid).then(setMeetings).catch(() => {})
     }, 8000)
     return () => clearInterval(interval)
   }, [cid])
+
+  // Re-fetch meetings whenever navigation changes (e.g. after delete)
+  useEffect(() => {
+    if (!cid) return
+    fetchMeetings(cid).then(setMeetings).catch(() => {})
+  }, [location.pathname, cid])
 
   async function createMeeting() {
     const name = prompt('Meeting name (e.g. "Weekly Strategy", "All Hands"):')
