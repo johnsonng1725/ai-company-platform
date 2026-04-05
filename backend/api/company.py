@@ -8,11 +8,31 @@ from backend.core.auth import get_current_user
 router = APIRouter(prefix="/api/company", tags=["company"])
 
 
-def get_company(user: models.User, db: Session) -> models.Company:
+def get_or_create_company(user: models.User, db: Session) -> models.Company:
+    """Get existing company or auto-create one — works for all users."""
     company = db.query(models.Company).filter(models.Company.owner_id == user.id).first()
     if not company:
-        raise HTTPException(status_code=404, detail="No company found. Please create one first.")
+        company_name = user.full_name or user.email.split("@")[0]
+        company = models.Company(
+            owner_id=user.id,
+            name=f"{company_name}'s AI Company",
+            description="My one-person company powered by AI employees.",
+        )
+        db.add(company)
+        db.flush()
+        db.add(models.ActivityLog(
+            company_id=company.id,
+            employee_id=None,
+            level="success",
+            message="🎉 Welcome! Your AI company is ready. Hire your first employee to get started.",
+        ))
+        db.commit()
     return company
+
+
+# Keep old name as alias so other API files still work
+def get_company(user: models.User, db: Session) -> models.Company:
+    return get_or_create_company(user, db)
 
 
 @router.get("", response_model=schemas.CompanyOut)
@@ -20,9 +40,7 @@ def get_my_company(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    company = db.query(models.Company).filter(models.Company.owner_id == current_user.id).first()
-    if not company:
-        raise HTTPException(status_code=404, detail="No company found")
+    company = get_or_create_company(current_user, db)
     return _to_out(company)
 
 
