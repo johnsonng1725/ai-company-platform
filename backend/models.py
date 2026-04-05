@@ -70,10 +70,42 @@ class Task(Base):
     status = Column(String, default="pending")  # pending | running | completed | failed
     result = Column(Text, default="")
     error = Column(Text, default="")
+    # Link to meeting if this task is a meeting response
+    meeting_id = Column(Integer, ForeignKey("meetings.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     employee = relationship("AIEmployee", back_populates="tasks")
+
+
+class Meeting(Base):
+    __tablename__ = "meetings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    name = Column(String, nullable=False)
+    # JSON list of employee IDs participating
+    participant_ids = Column(JSON, default=list)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    messages = relationship("MeetingMessage", back_populates="meeting", cascade="all, delete")
+
+
+class MeetingMessage(Base):
+    __tablename__ = "meeting_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    meeting_id = Column(Integer, ForeignKey("meetings.id"), nullable=False)
+    # 'user' = CEO, 'employee' = AI response
+    role = Column(String, nullable=False)
+    employee_id = Column(Integer, ForeignKey("ai_employees.id"), nullable=True)
+    content = Column(Text, nullable=False)
+    # pending | done (for employee messages awaiting AI response)
+    status = Column(String, default="done")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    meeting = relationship("Meeting", back_populates="messages")
+    employee = relationship("AIEmployee")
 
 
 class Proposal(Base):

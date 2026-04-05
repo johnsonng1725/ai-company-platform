@@ -6,6 +6,7 @@ import Employees from './pages/Employees'
 import Proposals from './pages/Proposals'
 import Settings from './pages/Settings'
 import EmployeeChat from './pages/EmployeeChat'
+import MeetingRoom from './pages/MeetingRoom'
 import Layout from './components/Layout'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="employees" element={<Employees />} />
           <Route path="employees/:employeeId/chat" element={<EmployeeChat />} />
+          <Route path="meetings/:meetingId" element={<MeetingRoom />} />
           <Route path="proposals" element={<Proposals />} />
           <Route path="settings" element={<Settings />} />
         </Route>

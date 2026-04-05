@@ -119,6 +119,35 @@ Please complete this task and provide your results."""
         result = call_ai(model_id, system_prompt, user_prompt, anthropic_key,
                          company.openai_api_key or os.getenv("OPENAI_API_KEY", ""))
 
+        # Meeting task → update the placeholder MeetingMessage
+        if task.meeting_id:
+            placeholder = (
+                db.query(models.MeetingMessage)
+                .filter(
+                    models.MeetingMessage.meeting_id == task.meeting_id,
+                    models.MeetingMessage.employee_id == employee.id,
+                    models.MeetingMessage.status == "pending",
+                )
+                .order_by(models.MeetingMessage.id.desc())
+                .first()
+            )
+            if placeholder:
+                placeholder.content = result
+                placeholder.status = "done"
+                db.merge(placeholder)
+
+            task.status = "completed"
+            task.result = result
+            employee.status = "idle"
+            employee.current_task = ""
+            db.merge(task)
+            db.merge(employee)
+            log_activity(db, company.id, employee.id, "success",
+                         f"💬 {employee.name} responded in meeting.")
+            db.commit()
+            log.info(f"[{employee.name}] Meeting response done.")
+            return
+
         # Check if result should be a proposal (for significant findings)
         should_propose = any(kw in task.title.lower() for kw in
                              ["research", "analyze", "scan", "opportunity", "proposal", "strategy"])
