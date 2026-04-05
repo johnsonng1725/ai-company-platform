@@ -109,6 +109,24 @@ def get_meeting(
     return _meeting_out(meeting, db)
 
 
+@router.put("/{meeting_id}")
+def update_meeting(
+    meeting_id: int,
+    body: dict,
+    company_id: int = Query(...),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    meeting = _get_meeting(meeting_id, company_id, current_user, db)
+    if "participant_ids" in body:
+        meeting.participant_ids = body["participant_ids"]
+    if "name" in body and body["name"].strip():
+        meeting.name = body["name"].strip()
+    db.commit()
+    db.refresh(meeting)
+    return _meeting_out(meeting, db)
+
+
 @router.delete("/{meeting_id}")
 def delete_meeting(
     meeting_id: int,

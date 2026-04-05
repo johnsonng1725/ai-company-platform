@@ -64,7 +64,7 @@ export default function Layout() {
     const res = await fetch(`/api/meetings?company_id=${cid}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ name: name.trim(), participant_ids: empList.map((e) => e.id) }),
+      body: JSON.stringify({ name: name.trim(), participant_ids: [] }),
     })
     if (res.ok) {
       const m = await res.json()

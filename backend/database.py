@@ -27,3 +27,18 @@ def get_db():
 def init_db():
     from backend import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+    # Safe migrations: add columns that may not exist on older deployments
+    _run_migrations()
+
+
+def _run_migrations():
+    """Apply incremental schema changes that create_all won't handle."""
+    from sqlalchemy import text, inspect
+    insp = inspect(engine)
+    with engine.begin() as conn:
+        # Add meeting_id to tasks if missing
+        task_cols = [c["name"] for c in insp.get_columns("tasks")]
+        if "meeting_id" not in task_cols:
+            conn.execute(text(
+                "ALTER TABLE tasks ADD COLUMN meeting_id INTEGER REFERENCES meetings(id) ON DELETE SET NULL"
+            ))
