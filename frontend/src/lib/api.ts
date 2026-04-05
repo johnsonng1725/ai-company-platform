@@ -21,71 +21,83 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json()
 }
 
+function qs(params: Record<string, string | number | undefined>) {
+  const p = Object.entries(params)
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => `${k}=${v}`)
+    .join('&')
+  return p ? `?${p}` : ''
+}
+
 // ── Auth ─────────────────────────────────────────────────────────────────────
 export const auth = {
   register: (email: string, password: string, full_name: string) =>
     request<{ access_token: string; user: User }>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, full_name }),
+      method: 'POST', body: JSON.stringify({ email, password, full_name }),
     }),
   login: (email: string, password: string) =>
     request<{ access_token: string; user: User }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
+      method: 'POST', body: JSON.stringify({ email, password }),
     }),
   me: () => request<User>('/auth/me'),
 }
 
-// ── Company ───────────────────────────────────────────────────────────────────
-export const company = {
-  get: () => request<Company>('/company'),
-  create: (data: Partial<Company> & { name: string }) =>
-    request<Company>('/company', { method: 'POST', body: JSON.stringify(data) }),
-  update: (data: Partial<Company>) =>
-    request<Company>('/company', { method: 'PUT', body: JSON.stringify(data) }),
+// ── Companies ─────────────────────────────────────────────────────────────────
+export const companies = {
+  list: () => request<Company[]>('/companies'),
+  create: (data: { name: string; description?: string }) =>
+    request<Company>('/companies', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: Partial<Company> & { anthropic_api_key?: string; openai_api_key?: string }) =>
+    request<Company>(`/companies/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) =>
+    request<{ ok: boolean }>(`/companies/${id}`, { method: 'DELETE' }),
 }
 
 // ── Employees ─────────────────────────────────────────────────────────────────
 export const employees = {
-  list: () => request<Employee[]>('/employees'),
-  create: (data: Partial<Employee> & { name: string; role: string }) =>
-    request<Employee>('/employees', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: Partial<Employee>) =>
-    request<Employee>(`/employees/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) =>
-    request<{ ok: boolean }>(`/employees/${id}`, { method: 'DELETE' }),
-  run: (id: number) =>
-    request<{ ok: boolean; message: string }>(`/employees/${id}/run`, { method: 'POST' }),
+  list: (companyId: number) =>
+    request<Employee[]>(`/employees${qs({ company_id: companyId })}`),
+  create: (companyId: number, data: Partial<Employee> & { name: string; role: string }) =>
+    request<Employee>(`/employees${qs({ company_id: companyId })}`, {
+      method: 'POST', body: JSON.stringify(data),
+    }),
+  update: (companyId: number, id: number, data: Partial<Employee>) =>
+    request<Employee>(`/employees/${id}${qs({ company_id: companyId })}`, {
+      method: 'PUT', body: JSON.stringify(data),
+    }),
+  delete: (companyId: number, id: number) =>
+    request<{ ok: boolean }>(`/employees/${id}${qs({ company_id: companyId })}`, { method: 'DELETE' }),
+  run: (companyId: number, id: number) =>
+    request<{ ok: boolean; message: string }>(`/employees/${id}/run${qs({ company_id: companyId })}`, { method: 'POST' }),
 }
 
 // ── Proposals ─────────────────────────────────────────────────────────────────
 export const proposals = {
-  list: (status?: string) =>
-    request<Proposal[]>(`/proposals${status ? `?status=${status}` : ''}`),
-  approve: (id: number, feedback = '') =>
-    request<Proposal>(`/proposals/${id}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ feedback }),
+  list: (companyId: number, status?: string) =>
+    request<Proposal[]>(`/proposals${qs({ company_id: companyId, status })}`),
+  approve: (companyId: number, id: number, feedback = '') =>
+    request<Proposal>(`/proposals/${id}/approve${qs({ company_id: companyId })}`, {
+      method: 'POST', body: JSON.stringify({ feedback }),
     }),
-  reject: (id: number, feedback: string) =>
-    request<Proposal>(`/proposals/${id}/reject`, {
-      method: 'POST',
-      body: JSON.stringify({ feedback }),
+  reject: (companyId: number, id: number, feedback: string) =>
+    request<Proposal>(`/proposals/${id}/reject${qs({ company_id: companyId })}`, {
+      method: 'POST', body: JSON.stringify({ feedback }),
     }),
-  revise: (id: number, feedback: string) =>
-    request<Proposal>(`/proposals/${id}/revise`, {
-      method: 'POST',
-      body: JSON.stringify({ feedback }),
+  revise: (companyId: number, id: number, feedback: string) =>
+    request<Proposal>(`/proposals/${id}/revise${qs({ company_id: companyId })}`, {
+      method: 'POST', body: JSON.stringify({ feedback }),
     }),
 }
 
 // ── Activity ──────────────────────────────────────────────────────────────────
 export const activity = {
-  list: (limit = 50) => request<ActivityLog[]>(`/activity?limit=${limit}`),
+  list: (companyId: number, limit = 50) =>
+    request<ActivityLog[]>(`/activity${qs({ company_id: companyId, limit })}`),
 }
 
 export const stats = {
-  get: () => request<Stats>('/stats'),
+  get: (companyId: number) =>
+    request<Stats>(`/stats${qs({ company_id: companyId })}`),
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -102,6 +114,8 @@ export interface Company {
   description: string
   has_anthropic_key: boolean
   has_openai_key: boolean
+  employee_count: number
+  pending_proposals: number
   created_at: string
 }
 

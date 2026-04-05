@@ -5,8 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from backend.database import init_db
+from sqlalchemy.orm import Session
+from backend.database import init_db, get_db
 from backend.api import auth, company, employees, proposals, activity
+from backend.api.company import get_company
 from backend.core.auth import get_current_user
 from backend import models, schemas
 
@@ -37,47 +39,24 @@ def me(current_user: models.User = Depends(get_current_user)):
 # Stats endpoint for dashboard
 @app.get("/api/stats", tags=["dashboard"])
 def get_stats(
+    company_id: int,
     current_user: models.User = Depends(get_current_user),
-    db=None,
+    db: Session = Depends(get_db),
 ):
-    from backend.database import SessionLocal
-    db = SessionLocal()
-    try:
-        comp = db.query(models.Company).filter(models.Company.owner_id == current_user.id).first()
-        if not comp:
-            return {"employees": 0, "active": 0, "pending_proposals": 0, "tasks_today": 0}
+    from datetime import datetime, date
+    comp = get_company(current_user, db, company_id)
+    today_start = datetime.combine(date.today(), datetime.min.time())
 
-        from datetime import datetime, date
-        today_start = datetime.combine(date.today(), datetime.min.time())
-
-        employees_count = db.query(models.AIEmployee).filter(
-            models.AIEmployee.company_id == comp.id,
-            models.AIEmployee.is_active == True,
-        ).count()
-
-        active_count = db.query(models.AIEmployee).filter(
-            models.AIEmployee.company_id == comp.id,
-            models.AIEmployee.status == "working",
-        ).count()
-
-        pending_proposals = db.query(models.Proposal).filter(
-            models.Proposal.company_id == comp.id,
-            models.Proposal.status == "pending",
-        ).count()
-
-        tasks_today = db.query(models.Task).join(models.AIEmployee).filter(
-            models.AIEmployee.company_id == comp.id,
-            models.Task.created_at >= today_start,
-        ).count()
-
-        return {
-            "employees": employees_count,
-            "active": active_count,
-            "pending_proposals": pending_proposals,
-            "tasks_today": tasks_today,
-        }
-    finally:
-        db.close()
+    return {
+        "employees": db.query(models.AIEmployee).filter(
+            models.AIEmployee.company_id == comp.id, models.AIEmployee.is_active == True).count(),
+        "active": db.query(models.AIEmployee).filter(
+            models.AIEmployee.company_id == comp.id, models.AIEmployee.status == "working").count(),
+        "pending_proposals": db.query(models.Proposal).filter(
+            models.Proposal.company_id == comp.id, models.Proposal.status == "pending").count(),
+        "tasks_today": db.query(models.Task).join(models.AIEmployee).filter(
+            models.AIEmployee.company_id == comp.id, models.Task.created_at >= today_start).count(),
+    }
 
 
 @app.on_event("startup")

@@ -55,6 +55,8 @@ class CompanyOut(BaseModel):
     created_at: datetime
     has_anthropic_key: bool
     has_openai_key: bool
+    employee_count: int = 0
+    pending_proposals: int = 0
 
     class Config:
         from_attributes = True
