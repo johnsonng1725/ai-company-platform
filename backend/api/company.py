@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend import models, schemas
 from backend.core.auth import get_current_user
+from backend.core.crypto import encrypt_value
 
 router = APIRouter(prefix="/api/companies", tags=["company"])
 
@@ -44,8 +45,8 @@ def create_company(
         owner_id=current_user.id,
         name=data.name,
         description=data.description,
-        anthropic_api_key=data.anthropic_api_key,
-        openai_api_key=data.openai_api_key,
+        anthropic_api_key=encrypt_value(data.anthropic_api_key or ""),
+        openai_api_key=encrypt_value(data.openai_api_key or ""),
     )
     db.add(company)
     db.flush()
@@ -82,9 +83,9 @@ def update_company(
     if data.description is not None:
         company.description = data.description
     if data.anthropic_api_key is not None:
-        company.anthropic_api_key = data.anthropic_api_key
+        company.anthropic_api_key = encrypt_value(data.anthropic_api_key)
     if data.openai_api_key is not None:
-        company.openai_api_key = data.openai_api_key
+        company.openai_api_key = encrypt_value(data.openai_api_key)
     db.commit()
     db.refresh(company)
     return _to_out(company, db)

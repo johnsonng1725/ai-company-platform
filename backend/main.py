@@ -14,9 +14,16 @@ from backend import models, schemas
 
 app = FastAPI(title="AI Company Platform", version="1.0.0")
 
+_cors_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+_allowed_origins = (
+    [o.strip() for o in _cors_origins_env.split(",") if o.strip()]
+    if _cors_origins_env
+    else ["http://localhost:5173", "http://localhost:3000"]
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,8 +68,19 @@ def get_stats(
     }
 
 
+@app.get("/api/platform-status", tags=["platform"])
+def platform_status():
+    """Returns which platform-level AI keys are configured (no values exposed)."""
+    return {
+        "has_anthropic": bool(settings.ANTHROPIC_API_KEY),
+        "has_openai": bool(settings.OPENAI_API_KEY),
+    }
+
+
 @app.on_event("startup")
 def startup():
+    from backend.core.config import validate_settings
+    validate_settings()
     init_db()
 
 

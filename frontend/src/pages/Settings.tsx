@@ -13,6 +13,7 @@ export default function Settings() {
   const [saving, setSaving]           = useState(false)
   const [saved, setSaved]             = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [platformKeys, setPlatformKeys] = useState<{ has_anthropic: boolean; has_openai: boolean } | null>(null)
 
   const [name, setName]               = useState('')
   const [desc, setDesc]               = useState('')
@@ -22,9 +23,14 @@ export default function Settings() {
   const [showOpenaiKey, setShowOpenaiKey]       = useState(false)
 
   useEffect(() => {
-    companiesApi.list().then((list) => {
+    const token = localStorage.getItem('token')
+    Promise.all([
+      companiesApi.list(),
+      fetch('/api/platform-status', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+    ]).then(([list, status]) => {
       const c = list.find((x) => x.id === cid)
       if (c) { setComp(c); setName(c.name); setDesc(c.description) }
+      setPlatformKeys(status)
     }).finally(() => setLoading(false))
   }, [cid])
 
@@ -55,16 +61,30 @@ export default function Settings() {
         <p className="mt-1 text-sm text-slate-500">Configure this company</p>
       </div>
 
-      <div className="flex items-start gap-3 rounded-xl px-4 py-3.5"
-           style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
-        <CheckCircle size={16} className="text-emerald-400 mt-0.5 shrink-0" />
-        <div>
-          <p className="text-sm font-medium text-emerald-300">Platform API keys are configured</p>
-          <p className="mt-0.5 text-xs text-slate-400">
-            Your AI employees can run immediately. Add your own keys below only if you want separate billing.
-          </p>
+      {platformKeys && (platformKeys.has_anthropic || platformKeys.has_openai) ? (
+        <div className="flex items-start gap-3 rounded-xl px-4 py-3.5"
+             style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
+          <CheckCircle size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-emerald-300">Platform API keys are configured</p>
+            <p className="mt-0.5 text-xs text-slate-400">
+              {[platformKeys.has_anthropic && 'Claude (Anthropic)', platformKeys.has_openai && 'OpenAI'].filter(Boolean).join(' & ')} {' '}
+              ready. Add your own keys below to use separate billing.
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex items-start gap-3 rounded-xl px-4 py-3.5"
+             style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)' }}>
+          <Info size={16} className="text-yellow-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-yellow-300">No platform API keys configured</p>
+            <p className="mt-0.5 text-xs text-slate-400">
+              Add your Anthropic or OpenAI key below so your AI employees can run.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="card p-6 flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-slate-200">Company Profile</h2>

@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from backend.database import SessionLocal, init_db
 from backend import models
+from backend.core.crypto import decrypt_value
 
 logging.basicConfig(
     level=logging.INFO,
@@ -95,29 +96,54 @@ def run_task(task: models.Task, employee: models.AIEmployee, company: models.Com
         log_activity(db, company.id, employee.id, "info",
                      f"{employee.role_emoji} {employee.name} is working: {task.title}")
 
-        anthropic_key = company.anthropic_api_key or os.getenv("ANTHROPIC_API_KEY", "")
+        anthropic_key = decrypt_value(company.anthropic_api_key) or os.getenv("ANTHROPIC_API_KEY", "")
         if not anthropic_key:
             raise ValueError("No Anthropic API key configured for this company.")
 
         # Build the agent prompt based on employee role and capabilities
         capabilities_text = "\n".join(f"- {c}" for c in (employee.capabilities or []))
+        openai_key = decrypt_value(company.openai_api_key) or os.getenv("OPENAI_API_KEY", "")
+        model_id = (employee.config or {}).get("model", "claude-sonnet-4-6")
+
         system_prompt = f"""You are {employee.name}, an AI {employee.role} working for a one-person company.
 Your capabilities:
 {capabilities_text or '- General AI assistance'}
 
 Your description: {employee.description or 'A capable AI employee.'}
 
-Complete your assigned task thoroughly and professionally. Return a structured result."""
+Complete your assigned task thoroughly and professionally.
+
+IMPORTANT — always respond in this exact JSON format (no prose outside the JSON):
+{{
+  "result": "<your full work output here>",
+  "needs_approval": <true or false>,
+  "approval_reason": "<one sentence explaining why approval is needed, or empty string>"
+}}
+
+Set needs_approval to true only when your output requires the CEO to make a decision, approve an action with real-world consequences, or review a significant recommendation. Routine reports or completed tasks should be false."""
 
         user_prompt = f"""Task: {task.title}
 
 Details: {task.description}
 
-Please complete this task and provide your results."""
+Please complete this task and return your JSON response."""
 
-        model_id = (employee.config or {}).get("model", "claude-sonnet-4-6")
-        result = call_ai(model_id, system_prompt, user_prompt, anthropic_key,
-                         company.openai_api_key or os.getenv("OPENAI_API_KEY", ""))
+        raw = call_ai(model_id, system_prompt, user_prompt, anthropic_key, openai_key)
+
+        # Parse structured response; fall back gracefully if AI didn't follow format
+        result = raw
+        needs_approval = False
+        approval_reason = ""
+        try:
+            import re
+            json_match = re.search(r'\{[\s\S]*\}', raw)
+            if json_match:
+                parsed = json.loads(json_match.group())
+                result = parsed.get("result", raw)
+                needs_approval = bool(parsed.get("needs_approval", False))
+                approval_reason = parsed.get("approval_reason", "")
+        except Exception:
+            pass  # Use raw result, needs_approval=False
 
         # Meeting task → update the placeholder MeetingMessage
         if task.meeting_id:
@@ -148,18 +174,16 @@ Please complete this task and provide your results."""
             log.info(f"[{employee.name}] Meeting response done.")
             return
 
-        # Check if result should be a proposal (for significant findings)
-        should_propose = any(kw in task.title.lower() for kw in
-                             ["research", "analyze", "scan", "opportunity", "proposal", "strategy"])
-
-        if should_propose:
+        # AI decided this result needs CEO approval → create a proposal
+        if needs_approval:
             # Create a proposal for CEO review
+            summary_text = approval_reason or (result[:300] + "..." if len(result) > 300 else result)
             proposal = models.Proposal(
                 company_id=company.id,
                 employee_id=employee.id,
                 title=f"[{employee.name}] {task.title}",
                 content=result,
-                summary=result[:300] + "..." if len(result) > 300 else result,
+                summary=summary_text,
                 status="pending",
             )
             db.add(proposal)
