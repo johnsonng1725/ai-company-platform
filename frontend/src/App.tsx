@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Companies from './pages/Companies'
 import Dashboard from './pages/Dashboard'
@@ -18,6 +19,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public landing page */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
 
         {/* Company selector — landing page after login */}
@@ -41,7 +44,7 @@ export default function App() {
         </Route>
 
         {/* Default redirect */}
-        <Route path="*" element={<Navigate to="/companies" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
