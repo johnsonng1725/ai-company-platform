@@ -32,7 +32,7 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/login')} className="text-sm text-slate-400 hover:text-white transition-colors">Sign in</button>
-            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Get Started Free</button>
+            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Sign In</button>
           </div>
         </div>
       </nav>
@@ -65,7 +65,7 @@ export default function Landing() {
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center mb-10">
             <button onClick={handleStart}
               className="flex items-center gap-2 rounded-xl bg-accent px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:shadow-accent/35 hover:-translate-y-0.5 active:scale-95">
-              Start for free — no credit card
+              Platform currently in private access
               <ArrowRight size={16} />
             </button>
             <button onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
@@ -287,7 +287,7 @@ export default function Landing() {
                 ))}
               </div>
               <button onClick={handleStart} className="w-full rounded-xl border border-white/10 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/5 transition-all">
-                Get started free
+                Sign in
               </button>
             </div>
             {/* Pro */}
@@ -349,11 +349,11 @@ export default function Landing() {
           </p>
           <button onClick={handleStart}
             className="inline-flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:-translate-y-0.5 mx-auto">
-            Start building your AI company
+            Request early access
             <ArrowRight size={16} />
           </button>
           <div className="mt-6 flex items-center justify-center gap-6 text-xs text-slate-500">
-            {['Free forever plan', 'No credit card', 'Cancel anytime'].map(t => (
+            {['Private beta', 'Waitlist open', 'Cancel anytime'].map(t => (
               <span key={t} className="flex items-center gap-1.5">
                 <CheckCircle size={11} className="text-emerald-500" />{t}
               </span>

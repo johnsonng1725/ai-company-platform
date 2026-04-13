@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Zap, Loader2 } from 'lucide-react'
+import { Zap, Loader2, Lock } from 'lucide-react'
 import { auth } from '../lib/api'
+
+// Set to true to re-enable public registration
+const REGISTRATIONS_OPEN = false
 
 export default function Login() {
   const navigate = useNavigate()
@@ -103,15 +106,22 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-xs text-slate-500">
-            {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError('') }}
-              className="text-accent-light hover:underline"
-            >
-              {mode === 'login' ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
+          {REGISTRATIONS_OPEN ? (
+            <p className="mt-4 text-center text-xs text-slate-500">
+              {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+              <button
+                onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError('') }}
+                className="text-accent-light hover:underline"
+              >
+                {mode === 'login' ? 'Sign up' : 'Sign in'}
+              </button>
+            </p>
+          ) : (
+            <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-600">
+              <Lock size={11} />
+              Private access only — registration is closed
+            </div>
+          )}
         </div>
       </div>
     </div>

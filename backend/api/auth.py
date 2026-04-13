@@ -10,6 +10,10 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/register", response_model=schemas.Token)
 def register(data: schemas.UserRegister, db: Session = Depends(get_db)):
+    import os
+    if os.getenv("REGISTRATIONS_OPEN", "true").lower() != "true":
+        raise HTTPException(status_code=403, detail="Registration is currently closed. This platform is in private access.")
+
     if db.query(models.User).filter(models.User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
 
