@@ -34,7 +34,7 @@ interface MeetingDetail {
 }
 
 // Assign a subtle accent color to each employee
-const COLORS = ['#7c3aed', '#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed']
+const COLORS = ['#0d9488', '#2563eb', '#059669', '#d97706', '#dc2626', '#0d9488']
 function empColor(id: number) { return COLORS[id % COLORS.length] }
 
 export default function MeetingRoom() {
@@ -146,7 +146,7 @@ export default function MeetingRoom() {
               style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#080810' }}>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl text-lg"
-               style={{ background: 'rgba(124,58,237,0.15)' }}>📅</div>
+               style={{ background: 'rgba(13,148,136,0.15)' }}>📅</div>
           <div>
             <p className="text-sm font-semibold text-white">{meeting.name}</p>
             <div className="flex items-center gap-1.5">
@@ -236,7 +236,7 @@ export default function MeetingRoom() {
                   <div key={msg.id} className="flex justify-end animate-fade-in">
                     <div className="max-w-[70%]">
                       <div className="rounded-2xl rounded-tr-sm px-4 py-3 text-sm text-white"
-                           style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(124,58,237,0.4)' }}>
+                           style={{ background: 'rgba(13,148,136,0.35)', border: '1px solid rgba(13,148,136,0.4)' }}>
                         <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                       </div>
                       <p className="mt-1 text-right text-xs text-slate-600">

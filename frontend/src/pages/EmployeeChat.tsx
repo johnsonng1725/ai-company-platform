@@ -48,7 +48,7 @@ function Message({ task, employee }: { task: Task; employee: Employee }) {
       {/* User message */}
       <div className="flex justify-end">
         <div className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-3 text-sm text-white"
-             style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(124,58,237,0.4)' }}>
+             style={{ background: 'rgba(13,148,136,0.35)', border: '1px solid rgba(13,148,136,0.4)' }}>
           <p className="leading-relaxed whitespace-pre-wrap">{task.description}</p>
           <p className="mt-1 text-right text-xs opacity-50">
             {format(new Date(task.created_at), 'HH:mm')}
@@ -226,7 +226,7 @@ export default function EmployeeChat() {
         <div className="h-4 w-px bg-white/10" />
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl text-xl"
-               style={{ background: 'rgba(124,58,237,0.12)' }}>
+               style={{ background: 'rgba(13,148,136,0.12)' }}>
             {employee.role_emoji}
           </div>
           <div>
@@ -252,7 +252,7 @@ export default function EmployeeChat() {
           {tasks.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-20 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl text-4xl"
-                   style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.15)' }}>
+                   style={{ background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.15)' }}>
                 {employee.role_emoji}
               </div>
               <div>

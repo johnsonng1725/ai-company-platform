@@ -24,7 +24,7 @@ function OnboardingGuide({ empCount, hasProposals, companyId }: {
   const pct = Math.round((doneCount / steps.length) * 100)
 
   return (
-    <div className="card p-5" style={{ background: 'rgba(124,58,237,0.05)', borderColor: 'rgba(124,58,237,0.2)' }}>
+    <div className="card p-5" style={{ background: 'rgba(13,148,136,0.05)', borderColor: 'rgba(13,148,136,0.2)' }}>
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">Get started</h2>
@@ -214,7 +214,7 @@ export default function Dashboard() {
           {empList.length === 0 ? (
             <div className="card flex flex-col items-center gap-4 py-14 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl text-3xl"
-                   style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)' }}>
+                   style={{ background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.2)' }}>
                 🤖
               </div>
               <div>

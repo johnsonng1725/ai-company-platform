@@ -14,10 +14,10 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a12] text-slate-100 overflow-x-hidden">
+    <div className="min-h-screen bg-surface text-ink overflow-x-hidden">
 
       {/* ── Nav ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-[#0a0a12]/80 backdrop-blur-md">
+      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-surface/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent shadow-lg shadow-accent/30">
@@ -41,7 +41,7 @@ export default function Landing() {
       <section className="relative flex flex-col items-center justify-center px-6 pt-40 pb-20 text-center">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/8 blur-[140px]" />
-          <div className="absolute right-1/4 top-2/3 h-72 w-72 rounded-full bg-purple-600/6 blur-[100px]" />
+          <div className="absolute right-1/4 top-2/3 h-72 w-72 rounded-full bg-teal-600/6 blur-[100px]" />
         </div>
 
         <div className="relative max-w-4xl">
@@ -53,7 +53,7 @@ export default function Landing() {
           <h1 className="mb-5 text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
             Your entire team.
             <br />
-            <span className="bg-gradient-to-r from-violet-400 via-accent to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-teal-300 via-accent-light to-cyan-400 bg-clip-text text-transparent">
               Powered by AI.
             </span>
           </h1>
@@ -88,9 +88,9 @@ export default function Landing() {
       {/* ── App Preview / Demo ── */}
       <section id="demo" className="px-6 pb-20">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-2xl border border-white/10 bg-[#0f0f1a] overflow-hidden shadow-2xl shadow-black/50">
+          <div className="rounded-2xl border border-white/10 bg-surface-card overflow-hidden shadow-2xl shadow-black/50">
             {/* Fake browser chrome */}
-            <div className="flex items-center gap-2 border-b border-white/5 bg-[#0d0d18] px-4 py-3">
+            <div className="flex items-center gap-2 border-b border-white/5 bg-surface-sidebar px-4 py-3">
               <div className="h-3 w-3 rounded-full bg-red-500/60" />
               <div className="h-3 w-3 rounded-full bg-amber-500/60" />
               <div className="h-3 w-3 rounded-full bg-emerald-500/60" />
@@ -99,7 +99,7 @@ export default function Landing() {
             {/* Fake dashboard UI */}
             <div className="flex" style={{ minHeight: 380 }}>
               {/* Sidebar */}
-              <div className="w-48 shrink-0 border-r border-white/5 bg-[#0d0d18] p-3 flex flex-col gap-1">
+              <div className="w-48 shrink-0 border-r border-white/5 bg-surface-sidebar p-3 flex flex-col gap-1">
                 <div className="flex items-center gap-2 px-2 py-1.5 mb-2">
                   <div className="h-5 w-5 rounded bg-accent flex items-center justify-center"><Zap size={10} className="text-white" /></div>
                   <span className="text-xs font-bold text-white">1nexio</span>
@@ -126,7 +126,7 @@ export default function Landing() {
                 {/* Stat cards */}
                 <div className="grid grid-cols-4 gap-3 mb-5">
                   {[
-                    { label: 'AI Employees', value: '3', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                    { label: 'AI Employees', value: '3', color: 'text-teal-400', bg: 'bg-teal-500/10' },
                     { label: 'Tasks This Week', value: '24', color: 'text-blue-400', bg: 'bg-blue-500/10' },
                     { label: 'Tasks Completed', value: '87', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
                     { label: 'Est. Hours Saved', value: '65h', color: 'text-amber-400', bg: 'bg-amber-500/10' },
@@ -188,7 +188,7 @@ export default function Landing() {
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { icon: Users, color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20',
+            { icon: Users, color: 'text-teal-400', bg: 'bg-teal-500/10 border-teal-500/20',
               title: 'AI Employees with Roles', desc: 'Hire AI employees for any role — Market Researcher, Sales Rep, Content Writer, Financial Analyst. Each has their own personality, skills, and model.' },
             { icon: MessageSquare, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20',
               title: 'Virtual Office & Chat', desc: 'Chat with any employee in their private workspace. Open a meeting room to brainstorm with your whole team at once.' },
@@ -292,7 +292,7 @@ export default function Landing() {
             </div>
             {/* Pro */}
             <div className="card p-7 text-left relative overflow-hidden"
-                 style={{ borderColor: 'rgba(124,58,237,0.4)', background: 'rgba(124,58,237,0.05)' }}>
+                 style={{ borderColor: 'rgba(13,148,136,0.4)', background: 'rgba(13,148,136,0.05)' }}>
               <div className="absolute top-4 right-4 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold text-white">COMING SOON</div>
               <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-2">Pro</p>
               <p className="text-4xl font-bold text-white mb-1">$29<span className="text-lg font-normal text-slate-400">/mo</span></p>

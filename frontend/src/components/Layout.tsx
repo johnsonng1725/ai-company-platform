@@ -86,10 +86,10 @@ export default function Layout() {
     <div className="flex h-screen overflow-hidden bg-surface">
       {/* Sidebar */}
       <aside className="flex w-60 flex-col border-r overflow-y-auto"
-             style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#080810' }}>
+             style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0d0d10' }}>
 
         {/* Back + Company name */}
-        <div className="sticky top-0 z-10 pt-4 pb-2 px-3" style={{ background: '#080810' }}>
+        <div className="sticky top-0 z-10 pt-4 pb-2 px-3" style={{ background: '#0d0d10' }}>
           <button
             onClick={() => navigate('/companies')}
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-500 transition-all hover:bg-white/5 hover:text-slate-300 w-full"
@@ -209,7 +209,7 @@ export default function Layout() {
         </div>
 
         {/* Logout */}
-        <div className="sticky bottom-0 border-t px-3 py-3" style={{ background: '#080810', borderColor: 'rgba(255,255,255,0.06)' }}>
+        <div className="sticky bottom-0 border-t px-3 py-3" style={{ background: '#0d0d10', borderColor: 'rgba(255,255,255,0.06)' }}>
           <button
             onClick={() => { localStorage.removeItem('token'); navigate('/login') }}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition-all hover:bg-white/5 hover:text-slate-300"

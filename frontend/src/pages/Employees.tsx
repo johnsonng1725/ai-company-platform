@@ -115,7 +115,7 @@ function EmployeeModal({ companyId, editing, onClose, onSaved }: {
             <div className="flex flex-wrap gap-1.5 mb-2">
               {caps.map((c) => (
                 <span key={c} className="flex items-center gap-1 rounded-md px-2 py-0.5 text-xs text-slate-300"
-                      style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)' }}>
+                      style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.3)' }}>
                   {c}<button onClick={() => setCaps(caps.filter((x) => x !== c))} className="hover:text-red-400 ml-0.5"><X size={10} /></button>
                 </span>
               ))}

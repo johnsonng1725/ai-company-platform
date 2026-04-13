@@ -40,7 +40,7 @@ export default function EmployeeCard({ employee, companyId, onRun, onDelete, onC
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl text-2xl"
-               style={{ background: 'rgba(124,58,237,0.12)' }}>
+               style={{ background: 'rgba(13,148,136,0.12)' }}>
             {employee.role_emoji}
           </div>
           <div>

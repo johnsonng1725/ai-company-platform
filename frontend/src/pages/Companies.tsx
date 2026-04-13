@@ -147,7 +147,7 @@ export default function Companies() {
             /* Empty state */
             <div className="flex flex-col items-center gap-5 py-20 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl"
-                   style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.2)' }}>
+                   style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.2)' }}>
                 <Building2 size={28} className="text-accent-light" />
               </div>
               <div>
@@ -171,7 +171,7 @@ export default function Companies() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl text-xl"
-                           style={{ background: 'rgba(124,58,237,0.12)' }}>
+                           style={{ background: 'rgba(13,148,136,0.12)' }}>
                         🏢
                       </div>
                       <div>
