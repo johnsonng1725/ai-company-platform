@@ -10,6 +10,7 @@ from backend.database import init_db, get_db
 from backend.api import auth, company, employees, proposals, activity, tasks, meetings
 from backend.api.company import get_company
 from backend.core.auth import get_current_user
+from backend.core.config import settings
 from backend import models, schemas
 
 app = FastAPI(title="AI Company Platform", version="1.0.0")
@@ -56,6 +57,18 @@ def get_stats(
     comp = get_company(current_user, db, company_id)
     today_start = datetime.combine(date.today(), datetime.min.time())
 
+    from datetime import timedelta
+    week_start = datetime.combine(date.today() - timedelta(days=date.today().weekday()), datetime.min.time())
+
+    tasks_base = db.query(models.Task).join(models.AIEmployee).filter(
+        models.AIEmployee.company_id == comp.id
+    )
+    tasks_completed_total = tasks_base.filter(models.Task.status == "completed").count()
+    tasks_this_week = tasks_base.filter(models.Task.created_at >= week_start).count()
+    tasks_today = tasks_base.filter(models.Task.created_at >= today_start).count()
+    proposals_approved = db.query(models.Proposal).filter(
+        models.Proposal.company_id == comp.id, models.Proposal.status == "approved").count()
+
     return {
         "employees": db.query(models.AIEmployee).filter(
             models.AIEmployee.company_id == comp.id, models.AIEmployee.is_active == True).count(),
@@ -63,8 +76,12 @@ def get_stats(
             models.AIEmployee.company_id == comp.id, models.AIEmployee.status == "working").count(),
         "pending_proposals": db.query(models.Proposal).filter(
             models.Proposal.company_id == comp.id, models.Proposal.status == "pending").count(),
-        "tasks_today": db.query(models.Task).join(models.AIEmployee).filter(
-            models.AIEmployee.company_id == comp.id, models.Task.created_at >= today_start).count(),
+        "tasks_today": tasks_today,
+        "tasks_this_week": tasks_this_week,
+        "tasks_completed_total": tasks_completed_total,
+        "proposals_approved": proposals_approved,
+        # Rough "hours saved" estimate: assume each AI task saves ~45 min of human work
+        "hours_saved": round(tasks_completed_total * 0.75, 1),
     }
 
 

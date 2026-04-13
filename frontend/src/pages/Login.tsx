@@ -43,8 +43,8 @@ export default function Login() {
             <Zap size={22} className="text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-xl font-bold text-white">AI Company</h1>
-            <p className="mt-1 text-sm text-slate-500">Your AI-powered one-person company</p>
+            <h1 className="text-xl font-bold text-white">1nexio</h1>
+            <p className="mt-1 text-sm text-slate-500">Your AI-powered business team</p>
           </div>
         </div>
 

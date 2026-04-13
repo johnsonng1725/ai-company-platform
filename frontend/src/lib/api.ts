@@ -165,4 +165,8 @@ export interface Stats {
   active: number
   pending_proposals: number
   tasks_today: number
+  tasks_this_week: number
+  tasks_completed_total: number
+  hours_saved: number
+  proposals_approved: number
 }

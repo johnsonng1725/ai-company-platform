@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Zap, Users, MessageSquare, ClipboardCheck,
   Building2, ArrowRight, CheckCircle, Bot,
-  BarChart3, Clock, Globe
+  BarChart3, Clock, Globe, TrendingUp, Shield, Star,
 } from 'lucide-react'
 
 export default function Landing() {
@@ -23,70 +23,153 @@ export default function Landing() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent shadow-lg shadow-accent/30">
               <Zap size={15} className="text-white" />
             </div>
-            <span className="font-bold text-white">1nexio</span>
-            <span className="ml-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent border border-accent/20">AI</span>
+            <span className="font-bold text-white text-lg">1nexio</span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
+            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">Features</button>
+            <button onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">How it works</button>
+            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">Pricing</button>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/login')}
-              className="text-sm text-slate-400 hover:text-white transition-colors">
-              Sign in
-            </button>
-            <button onClick={handleStart}
-              className="btn-primary text-xs px-4 py-2">
-              Get Started
-            </button>
+            <button onClick={() => navigate('/login')} className="text-sm text-slate-400 hover:text-white transition-colors">Sign in</button>
+            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Get Started Free</button>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section className="relative flex flex-col items-center justify-center px-6 pt-40 pb-28 text-center">
-        {/* glow blobs */}
+      <section className="relative flex flex-col items-center justify-center px-6 pt-40 pb-20 text-center">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[120px]" />
-          <div className="absolute right-1/4 top-1/2 h-64 w-64 rounded-full bg-purple-600/8 blur-[80px]" />
+          <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/8 blur-[140px]" />
+          <div className="absolute right-1/4 top-2/3 h-72 w-72 rounded-full bg-purple-600/6 blur-[100px]" />
         </div>
 
-        <div className="relative max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs text-accent">
+        <div className="relative max-w-4xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs text-accent font-medium">
             <Bot size={12} />
-            AI-powered one-person company platform
+            The AI-powered business platform for entrepreneurs
           </div>
 
-          <h1 className="mb-6 text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
-            Run a full company
+          <h1 className="mb-5 text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            Your entire team.
             <br />
-            <span className="bg-gradient-to-r from-accent via-purple-400 to-accent-light bg-clip-text text-transparent">
-              with AI employees
+            <span className="bg-gradient-to-r from-violet-400 via-accent to-blue-400 bg-clip-text text-transparent">
+              Powered by AI.
             </span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-xl text-lg text-slate-400 leading-relaxed">
-            Hire AI employees for any role — researcher, writer, analyst, marketer.
-            They work 24/7, report to you, and ask for approval when it matters.
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-slate-400 leading-relaxed">
+            1nexio lets you run a full business operation as a solo founder — with AI employees that research, write, analyse, and execute 24/7. Stop doing everything alone.
           </p>
 
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center mb-10">
             <button onClick={handleStart}
-              className="flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-all hover:bg-accent-light hover:shadow-accent/40 active:scale-95">
-              Start for free
+              className="flex items-center gap-2 rounded-xl bg-accent px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:shadow-accent/35 hover:-translate-y-0.5 active:scale-95">
+              Start for free — no credit card
               <ArrowRight size={16} />
             </button>
-            <button onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}
-              className="rounded-xl border border-white/10 px-8 py-3.5 text-sm font-medium text-slate-300 hover:bg-white/5 transition-all">
-              See how it works
+            <button onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+              className="rounded-xl border border-white/10 px-8 py-4 text-sm font-medium text-slate-300 hover:bg-white/5 hover:border-white/20 transition-all">
+              See it in action ↓
             </button>
+          </div>
+
+          {/* Social proof */}
+          <div className="flex items-center justify-center gap-6 text-xs text-slate-500">
+            {['Free to start', 'Claude & GPT-4 powered', 'No technical skills needed'].map(t => (
+              <span key={t} className="flex items-center gap-1.5">
+                <CheckCircle size={11} className="text-emerald-500" />{t}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Stats ── */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-12">
+      {/* ── App Preview / Demo ── */}
+      <section id="demo" className="px-6 pb-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="rounded-2xl border border-white/10 bg-[#0f0f1a] overflow-hidden shadow-2xl shadow-black/50">
+            {/* Fake browser chrome */}
+            <div className="flex items-center gap-2 border-b border-white/5 bg-[#0d0d18] px-4 py-3">
+              <div className="h-3 w-3 rounded-full bg-red-500/60" />
+              <div className="h-3 w-3 rounded-full bg-amber-500/60" />
+              <div className="h-3 w-3 rounded-full bg-emerald-500/60" />
+              <div className="ml-4 flex-1 rounded-md bg-white/5 px-3 py-1 text-xs text-slate-500">app.1nexio.com/dashboard</div>
+            </div>
+            {/* Fake dashboard UI */}
+            <div className="flex" style={{ minHeight: 380 }}>
+              {/* Sidebar */}
+              <div className="w-48 shrink-0 border-r border-white/5 bg-[#0d0d18] p-3 flex flex-col gap-1">
+                <div className="flex items-center gap-2 px-2 py-1.5 mb-2">
+                  <div className="h-5 w-5 rounded bg-accent flex items-center justify-center"><Zap size={10} className="text-white" /></div>
+                  <span className="text-xs font-bold text-white">1nexio</span>
+                </div>
+                {['Dashboard', 'AI Employees', 'Proposals'].map((item, i) => (
+                  <div key={item} className={`rounded-lg px-2.5 py-1.5 text-xs ${i === 0 ? 'bg-accent/10 text-accent' : 'text-slate-500'}`}>{item}</div>
+                ))}
+                <div className="mt-3 px-2 text-[10px] font-semibold uppercase tracking-wider text-slate-700">Office</div>
+                {[
+                  { name: 'Sam', emoji: '🔬', active: true },
+                  { name: 'Alex', emoji: '✍️', active: false },
+                  { name: 'Maria', emoji: '📊', active: true },
+                ].map(e => (
+                  <div key={e.name} className="flex items-center gap-2 rounded-lg px-2.5 py-1.5">
+                    <span className="text-sm">{e.emoji}</span>
+                    <span className="text-xs text-slate-400 flex-1">{e.name}</span>
+                    <span className={`h-1.5 w-1.5 rounded-full ${e.active ? 'bg-blue-400 animate-pulse' : 'bg-slate-600'}`} />
+                  </div>
+                ))}
+              </div>
+              {/* Main content */}
+              <div className="flex-1 p-5">
+                <p className="text-sm font-semibold text-white mb-4">Dashboard</p>
+                {/* Stat cards */}
+                <div className="grid grid-cols-4 gap-3 mb-5">
+                  {[
+                    { label: 'AI Employees', value: '3', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                    { label: 'Tasks This Week', value: '24', color: 'text-blue-400', bg: 'bg-blue-500/10' },
+                    { label: 'Tasks Completed', value: '87', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                    { label: 'Est. Hours Saved', value: '65h', color: 'text-amber-400', bg: 'bg-amber-500/10' },
+                  ].map(s => (
+                    <div key={s.label} className="rounded-xl border border-white/5 bg-white/2 p-3">
+                      <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
+                      <p className="text-[10px] text-slate-600 mt-0.5">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Employee cards */}
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { name: 'Sam', role: 'Market Researcher', emoji: '🔬', status: 'Working', statusColor: 'text-blue-400 bg-blue-500/10', task: 'Analysing competitor pricing...' },
+                    { name: 'Alex', role: 'Content Writer', emoji: '✍️', status: 'Idle', statusColor: 'text-slate-400 bg-slate-500/10', task: 'Ready for next task' },
+                  ].map(e => (
+                    <div key={e.name} className="rounded-xl border border-white/5 bg-white/2 p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">{e.emoji}</span>
+                        <div>
+                          <p className="text-xs font-medium text-white">{e.name}</p>
+                          <p className="text-[10px] text-slate-500">{e.role}</p>
+                        </div>
+                        <span className={`ml-auto text-[10px] rounded-full px-2 py-0.5 font-medium ${e.statusColor}`}>{e.status}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 italic">{e.task}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-center text-xs text-slate-600">Live dashboard — see your AI team working in real time</p>
+        </div>
+      </section>
+
+      {/* ── Stats bar ── */}
+      <section className="border-y border-white/5 bg-white/[0.02] py-10">
         <div className="mx-auto grid max-w-4xl grid-cols-3 divide-x divide-white/5">
           {[
-            { value: '24/7', label: 'Always working' },
-            { value: '∞', label: 'AI employees' },
-            { value: '100%', label: 'Your decisions' },
+            { value: '24/7', label: 'Your AI team never stops' },
+            { value: '8+', label: 'Built-in role templates' },
+            { value: '45min', label: 'Avg time saved per task' },
           ].map(({ value, label }) => (
             <div key={label} className="flex flex-col items-center py-4">
               <p className="text-3xl font-bold text-white">{value}</p>
@@ -97,58 +180,28 @@ export default function Landing() {
       </section>
 
       {/* ── Features ── */}
-      <section className="mx-auto max-w-6xl px-6 py-24">
-        <div className="mb-16 text-center">
-          <h2 className="text-3xl font-bold text-white">Everything you need to run your AI company</h2>
-          <p className="mt-3 text-slate-400">One platform. Multiple AI employees. Zero management overhead.</p>
+      <section id="features" className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mb-14 text-center">
+          <h2 className="text-3xl font-bold text-white">Everything your business needs</h2>
+          <p className="mt-3 text-slate-400 max-w-xl mx-auto">Built for solo founders and small businesses who want to punch above their weight.</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            {
-              icon: Users,
-              color: 'text-blue-400',
-              bg: 'bg-blue-500/10 border-blue-500/20',
-              title: 'AI Employees',
-              desc: 'Hire AI employees with custom roles, personalities, and models (Claude, GPT-4). Each one has their own workspace.',
-            },
-            {
-              icon: MessageSquare,
-              color: 'text-purple-400',
-              bg: 'bg-purple-500/10 border-purple-500/20',
-              title: 'Virtual Office',
-              desc: 'Chat with any employee in their private workspace, or open a meeting room with multiple employees at once.',
-            },
-            {
-              icon: ClipboardCheck,
-              color: 'text-emerald-400',
-              bg: 'bg-emerald-500/10 border-emerald-500/20',
-              title: 'Approval Workflow',
-              desc: 'AI employees submit proposals when a decision needs you. Approve, reject, or request revisions — you stay in control.',
-            },
-            {
-              icon: Building2,
-              color: 'text-amber-400',
-              bg: 'bg-amber-500/10 border-amber-500/20',
-              title: 'Multiple Companies',
-              desc: 'Run different companies or projects from one account. Each company has its own team and settings.',
-            },
-            {
-              icon: BarChart3,
-              color: 'text-pink-400',
-              bg: 'bg-pink-500/10 border-pink-500/20',
-              title: 'Activity Feed',
-              desc: 'Real-time dashboard showing what every employee is working on, tasks completed, and proposals pending.',
-            },
-            {
-              icon: Globe,
-              color: 'text-cyan-400',
-              bg: 'bg-cyan-500/10 border-cyan-500/20',
-              title: 'Choose Your AI',
-              desc: 'Pick any model per employee — Claude 3.5 Sonnet, GPT-4o, or mini models. Match intelligence to the role.',
-            },
+            { icon: Users, color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20',
+              title: 'AI Employees with Roles', desc: 'Hire AI employees for any role — Market Researcher, Sales Rep, Content Writer, Financial Analyst. Each has their own personality, skills, and model.' },
+            { icon: MessageSquare, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20',
+              title: 'Virtual Office & Chat', desc: 'Chat with any employee in their private workspace. Open a meeting room to brainstorm with your whole team at once.' },
+            { icon: ClipboardCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20',
+              title: 'Smart Approval Workflow', desc: 'Employees know when to ask for permission. They submit proposals for decisions that matter — you stay the boss.' },
+            { icon: Building2, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20',
+              title: 'Multiple Companies', desc: 'Run different businesses or projects under one account. Each company has its own team, settings, and billing.' },
+            { icon: TrendingUp, color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20',
+              title: 'ROI Metrics', desc: 'Track tasks completed, hours saved, and approvals — so you can see the real business value your AI team delivers.' },
+            { icon: Globe, color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20',
+              title: 'Pick Your AI Model', desc: 'Choose Claude or GPT-4 per employee. Use powerful models for complex thinking, fast models for routine tasks.' },
           ].map(({ icon: Icon, color, bg, title, desc }) => (
-            <div key={title} className="card p-6 flex flex-col gap-4 hover:border-white/15 transition-all">
+            <div key={title} className="card p-6 flex flex-col gap-4 hover:border-white/15 hover:-translate-y-0.5 transition-all">
               <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${bg}`}>
                 <Icon size={18} className={color} />
               </div>
@@ -164,41 +217,28 @@ export default function Landing() {
       {/* ── How it works ── */}
       <section id="how" className="border-t border-white/5 bg-white/[0.015] py-24">
         <div className="mx-auto max-w-4xl px-6">
-          <div className="mb-16 text-center">
-            <h2 className="text-3xl font-bold text-white">How it works</h2>
-            <p className="mt-3 text-slate-400">Up and running in minutes</p>
+          <div className="mb-14 text-center">
+            <h2 className="text-3xl font-bold text-white">Up and running in 5 minutes</h2>
+            <p className="mt-3 text-slate-400">No technical setup. No complex configuration.</p>
           </div>
 
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6">
             {[
-              {
-                step: '01',
-                title: 'Create your company',
-                desc: 'Sign up and create your first AI company. Give it a name and description.',
-              },
-              {
-                step: '02',
-                title: 'Hire AI employees',
-                desc: 'Add employees with specific roles — Sales Rep, Content Writer, Market Researcher. Choose their AI model and capabilities.',
-              },
-              {
-                step: '03',
-                title: 'Chat and delegate',
-                desc: 'Go to any employee\'s workspace and give them tasks. Open a meeting room to discuss with the whole team.',
-              },
-              {
-                step: '04',
-                title: 'Review and approve',
-                desc: 'When employees need a decision, they submit a proposal. You approve or reject — always stay in control.',
-              },
-            ].map(({ step, title, desc }) => (
-              <div key={step} className="flex gap-6">
+              { step: '01', title: 'Create your company', desc: 'Sign up and give your AI company a name. That\'s it — you\'re in.', time: '30 sec' },
+              { step: '02', title: 'Hire AI employees', desc: 'Pick from 8+ role templates (or create a custom role). Choose their AI model — Claude Sonnet for deep work, Haiku for fast tasks.', time: '2 min' },
+              { step: '03', title: 'Give them work', desc: 'Go to any employee\'s workspace and assign a task. They work autonomously and report back with results.', time: '1 min' },
+              { step: '04', title: 'Review and scale', desc: 'Approve proposals, read reports, open a meeting room. Your AI company grows with you.', time: 'Ongoing' },
+            ].map(({ step, title, desc, time }) => (
+              <div key={step} className="flex gap-5 items-start">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-accent/20 bg-accent/5 text-sm font-bold text-accent">
                   {step}
                 </div>
-                <div className="pt-2">
-                  <h3 className="font-semibold text-white">{title}</h3>
-                  <p className="mt-1 text-sm text-slate-400 leading-relaxed">{desc}</p>
+                <div className="flex-1 pt-2">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-semibold text-white">{title}</h3>
+                    <span className="text-xs text-slate-600 border border-white/5 rounded-full px-2 py-0.5">{time}</span>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -209,45 +249,113 @@ export default function Landing() {
       {/* ── Use cases ── */}
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold text-white">Built for solo founders & small teams</h2>
-          <p className="mt-3 text-slate-400">What your AI team can do for you</p>
+          <h2 className="text-3xl font-bold text-white">What your AI team can do</h2>
+          <p className="mt-3 text-slate-400">Real tasks. Real results.</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { emoji: '🔍', title: 'Market Research', desc: 'Scan competitors, identify trends, summarise findings' },
-            { emoji: '✍️', title: 'Content Creation', desc: 'Write blogs, emails, social posts, ad copy' },
-            { emoji: '📊', title: 'Data Analysis', desc: 'Analyse reports and surface insights' },
-            { emoji: '📧', title: 'Outreach', desc: 'Draft proposals, follow-ups, client pitches' },
+            { emoji: '🔍', title: 'Market Research', desc: 'Scan competitors, spot trends, score opportunities — delivered as a report' },
+            { emoji: '✍️', title: 'Content & Copy', desc: 'Blog posts, email campaigns, product descriptions, social media' },
+            { emoji: '📊', title: 'Business Analysis', desc: 'Financial summaries, weekly reports, KPI tracking, insights' },
+            { emoji: '📧', title: 'Sales & Outreach', desc: 'Cold emails, follow-ups, pitch decks, lead qualification' },
           ].map(({ emoji, title, desc }) => (
-            <div key={title} className="card p-5 text-center hover:border-white/15 transition-all">
+            <div key={title} className="card p-5 hover:border-white/15 hover:-translate-y-0.5 transition-all">
               <div className="mb-3 text-3xl">{emoji}</div>
-              <h3 className="text-sm font-semibold text-white">{title}</h3>
-              <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">{desc}</p>
+              <h3 className="text-sm font-semibold text-white mb-1.5">{title}</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="border-t border-white/5 py-24">
-        <div className="mx-auto max-w-2xl px-6 text-center">
-          <div className="pointer-events-none absolute left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-accent/10 blur-[80px]" />
-          <h2 className="relative text-4xl font-bold text-white">
-            Ready to build your AI company?
+      {/* ── Pricing ── */}
+      <section id="pricing" className="border-t border-white/5 bg-white/[0.015] py-24">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <h2 className="text-3xl font-bold text-white mb-3">Simple, honest pricing</h2>
+          <p className="text-slate-400 mb-12">Start free. Upgrade when you're ready.</p>
+          <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
+            {/* Free */}
+            <div className="card p-7 text-left">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Starter</p>
+              <p className="text-4xl font-bold text-white mb-1">Free</p>
+              <p className="text-sm text-slate-500 mb-6">Perfect to get started</p>
+              <div className="flex flex-col gap-2.5 mb-8">
+                {['1 company', '3 AI employees', 'All role templates', 'Meeting rooms', 'Proposal workflow'].map(f => (
+                  <span key={f} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle size={14} className="text-emerald-400 shrink-0" />{f}
+                  </span>
+                ))}
+              </div>
+              <button onClick={handleStart} className="w-full rounded-xl border border-white/10 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/5 transition-all">
+                Get started free
+              </button>
+            </div>
+            {/* Pro */}
+            <div className="card p-7 text-left relative overflow-hidden"
+                 style={{ borderColor: 'rgba(124,58,237,0.4)', background: 'rgba(124,58,237,0.05)' }}>
+              <div className="absolute top-4 right-4 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold text-white">COMING SOON</div>
+              <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-2">Pro</p>
+              <p className="text-4xl font-bold text-white mb-1">$29<span className="text-lg font-normal text-slate-400">/mo</span></p>
+              <p className="text-sm text-slate-500 mb-6">For serious founders</p>
+              <div className="flex flex-col gap-2.5 mb-8">
+                {['Unlimited companies', 'Unlimited AI employees', 'Priority AI processing', 'Custom AI models', 'Advanced analytics', 'Priority support'].map(f => (
+                  <span key={f} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle size={14} className="text-accent shrink-0" />{f}
+                  </span>
+                ))}
+              </div>
+              <button onClick={handleStart} className="w-full rounded-xl bg-accent py-2.5 text-sm font-medium text-white hover:bg-accent-light transition-all">
+                Join waitlist
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust signals ── */}
+      <section className="border-t border-white/5 py-16">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="grid gap-6 sm:grid-cols-3">
+            {[
+              { icon: Shield, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', title: 'Secure by design', desc: 'Your API keys are encrypted at rest. JWT auth. No plaintext secrets stored.' },
+              { icon: Clock, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20', title: '24/7 autonomous work', desc: 'Your AI team works around the clock on Render\'s infrastructure — even while you sleep.' },
+              { icon: Star, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', title: 'You stay in control', desc: 'Every significant decision goes through you. AI employees propose — you approve.' },
+            ].map(({ icon: Icon, color, bg, title, desc }) => (
+              <div key={title} className="flex gap-4">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${bg}`}>
+                  <Icon size={18} className={color} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white">{title}</h3>
+                  <p className="mt-1 text-xs text-slate-400 leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Final CTA ── */}
+      <section className="border-t border-white/5 py-24 relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="h-64 w-64 rounded-full bg-accent/8 blur-[80px]" />
+        </div>
+        <div className="relative mx-auto max-w-2xl px-6 text-center">
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Stop doing everything yourself.
           </h2>
-          <p className="relative mt-4 text-slate-400">
-            Start free. No credit card required.
+          <p className="text-slate-400 mb-8 text-lg">
+            Build your AI company today — free, no credit card, ready in minutes.
           </p>
           <button onClick={handleStart}
-            className="relative mt-8 flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-all hover:bg-accent-light mx-auto">
-            Get started free
+            className="inline-flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:-translate-y-0.5 mx-auto">
+            Start building your AI company
             <ArrowRight size={16} />
           </button>
           <div className="mt-6 flex items-center justify-center gap-6 text-xs text-slate-500">
-            {['No credit card', 'Cancel anytime', 'Your data stays private'].map(t => (
+            {['Free forever plan', 'No credit card', 'Cancel anytime'].map(t => (
               <span key={t} className="flex items-center gap-1.5">
-                <CheckCircle size={11} className="text-emerald-500" />
-                {t}
+                <CheckCircle size={11} className="text-emerald-500" />{t}
               </span>
             ))}
           </div>

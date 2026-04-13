@@ -120,7 +120,7 @@ export default function Companies() {
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent">
             <Zap size={14} className="text-white" />
           </div>
-          <span className="text-sm font-semibold text-white">AI Company</span>
+          <span className="text-sm font-semibold text-white">1nexio</span>
         </div>
         <button
           onClick={() => { localStorage.removeItem('token'); navigate('/login') }}
