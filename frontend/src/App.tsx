@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
+import AuthCallback from './pages/AuthCallback'
 import Companies from './pages/Companies'
 import Dashboard from './pages/Dashboard'
 import Employees from './pages/Employees'
@@ -22,6 +23,7 @@ export default function App() {
         {/* Public landing page */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* Company selector — landing page after login */}
         <Route

@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 
 from sqlalchemy.orm import Session
 from backend.database import init_db, get_db
-from backend.api import auth, company, employees, proposals, activity, tasks, meetings
+from backend.api import auth, company, employees, proposals, activity, tasks, meetings, oauth
 from backend.api.company import get_company
 from backend.core.auth import get_current_user
 from backend.core.config import settings
@@ -32,6 +32,7 @@ app.add_middleware(
 
 # API routes
 app.include_router(auth.router)
+app.include_router(oauth.router)
 app.include_router(company.router)
 app.include_router(employees.router)
 app.include_router(proposals.router)

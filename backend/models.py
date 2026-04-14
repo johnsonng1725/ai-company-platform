@@ -10,8 +10,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=True)   # nullable for OAuth-only users
     full_name = Column(String, default="")
+    avatar_url = Column(String, default="")
+    # OAuth provider IDs
+    google_id = Column(String, nullable=True, unique=True, index=True)
+    facebook_id = Column(String, nullable=True, unique=True, index=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

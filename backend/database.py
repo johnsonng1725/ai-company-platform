@@ -42,3 +42,14 @@ def _run_migrations():
             conn.execute(text(
                 "ALTER TABLE tasks ADD COLUMN meeting_id INTEGER REFERENCES meetings(id) ON DELETE SET NULL"
             ))
+        # Add OAuth columns to users if missing
+        user_cols = [c["name"] for c in insp.get_columns("users")]
+        if "google_id" not in user_cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN google_id VARCHAR UNIQUE"))
+        if "facebook_id" not in user_cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN facebook_id VARCHAR UNIQUE"))
+        if "avatar_url" not in user_cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN avatar_url VARCHAR DEFAULT ''"))
+        # Make hashed_password nullable for OAuth users
+        if not DATABASE_URL.startswith("sqlite"):
+            conn.execute(text("ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL"))
