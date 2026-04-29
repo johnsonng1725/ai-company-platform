@@ -92,6 +92,7 @@ def _task_out(task: models.Task) -> dict:
         "status": task.status,
         "result": task.result,
         "error": task.error,
+        "steps": task.steps or [],
         "created_at": task.created_at.isoformat(),
         "updated_at": task.updated_at.isoformat(),
     }

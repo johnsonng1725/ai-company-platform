@@ -53,3 +53,6 @@ def _run_migrations():
         # Make hashed_password nullable for OAuth users
         if not DATABASE_URL.startswith("sqlite"):
             conn.execute(text("ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL"))
+        # Add steps column to tasks if missing
+        if "steps" not in task_cols:
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN steps JSON DEFAULT '[]'"))

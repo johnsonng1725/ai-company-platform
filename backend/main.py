@@ -95,6 +95,54 @@ def platform_status():
     }
 
 
+@app.get("/api/dev/token", tags=["dev"])
+def dev_auto_login(db: Session = Depends(get_db)):
+    """
+    Local development only — returns a JWT for a default dev user.
+    Disabled automatically when DATABASE_URL is not SQLite.
+    """
+    from backend.core.config import settings as _s
+    if not _s.DATABASE_URL.startswith("sqlite"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Dev auto-login only available in local development.")
+
+    from backend.core.auth import create_access_token
+    from datetime import timedelta
+
+    # Find or create dev user (skip password hashing to avoid passlib issues in dev)
+    user = db.query(models.User).filter(models.User.email == "dev@localhost").first()
+    if not user:
+        import hashlib
+        dummy_hash = "$2b$12$" + hashlib.sha256(b"devpassword").hexdigest()[:53]
+        user = models.User(
+            email="dev@localhost",
+            full_name="Dev User",
+            hashed_password=dummy_hash,
+            is_active=True,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    # Find or create a default company for this user
+    company = db.query(models.Company).filter(models.Company.owner_id == user.id).first()
+    if not company:
+        company = models.Company(
+            owner_id=user.id,
+            name="My AI Company",
+            description="Your AI-powered one-person company",
+        )
+        db.add(company)
+        db.commit()
+        db.refresh(company)
+
+    token = create_access_token(
+        {"sub": str(user.id)},
+        expires_delta=timedelta(days=7),
+    )
+    return {"token": token, "company_id": company.id}
+
+
 @app.on_event("startup")
 def startup():
     from backend.core.config import validate_settings

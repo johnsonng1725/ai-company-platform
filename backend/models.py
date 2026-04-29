@@ -74,6 +74,7 @@ class Task(Base):
     status = Column(String, default="pending")  # pending | running | completed | failed
     result = Column(Text, default="")
     error = Column(Text, default="")
+    steps = Column(JSON, default=list)   # live work steps [{type, content, ts}]
     # Link to meeting if this task is a meeting response
     meeting_id = Column(Integer, ForeignKey("meetings.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

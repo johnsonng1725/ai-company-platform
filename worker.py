@@ -79,12 +79,28 @@ def call_ai(model_id: str, system_prompt: str, user_prompt: str,
         return response.content[0].text
 
 
+def add_step(db, task: models.Task, step_type: str, content: str):
+    """Append a live work step to the task and flush to DB immediately."""
+    steps = list(task.steps or [])
+    steps.append({
+        "type": step_type,
+        "content": content,
+        "ts": datetime.utcnow().isoformat(),
+    })
+    task.steps = steps
+    from sqlalchemy.orm.attributes import flag_modified
+    flag_modified(task, "steps")
+    db.merge(task)
+    db.commit()
+
+
 def run_task(task: models.Task, employee: models.AIEmployee, company: models.Company):
     """Execute a task for a given AI employee using the company's API keys."""
     db = get_db()
     try:
         # Mark task running
         task.status = "running"
+        task.steps = []
         employee.status = "working"
         employee.current_task = task.title
         employee.last_active = datetime.utcnow()
@@ -96,6 +112,11 @@ def run_task(task: models.Task, employee: models.AIEmployee, company: models.Com
         log_activity(db, company.id, employee.id, "info",
                      f"{employee.role_emoji} {employee.name} is working: {task.title}")
 
+        # ── Live steps ──────────────────────────────────────────────────────
+        task = db.merge(task)
+        add_step(db, task, "init",
+                 f"Reading task: \"{task.title[:80]}{'...' if len(task.title) > 80 else ''}\"")
+
         anthropic_key = decrypt_value(company.anthropic_api_key) or os.getenv("ANTHROPIC_API_KEY", "")
         if not anthropic_key:
             raise ValueError("No Anthropic API key configured for this company.")
@@ -104,6 +125,11 @@ def run_task(task: models.Task, employee: models.AIEmployee, company: models.Com
         capabilities_text = "\n".join(f"- {c}" for c in (employee.capabilities or []))
         openai_key = decrypt_value(company.openai_api_key) or os.getenv("OPENAI_API_KEY", "")
         model_id = (employee.config or {}).get("model", "claude-sonnet-4-6")
+
+        add_step(db, task, "context",
+                 f"Loading {employee.role} profile — {len(employee.capabilities or [])} capabilities active")
+        add_step(db, task, "thinking",
+                 f"Determining approach using {model_id}...")
 
         system_prompt = f"""You are {employee.name}, an AI {employee.role} working for a one-person company.
 Your capabilities:
@@ -128,7 +154,9 @@ Details: {task.description}
 
 Please complete this task and return your JSON response."""
 
+        add_step(db, task, "working", f"Thinking and composing response...")
         raw = call_ai(model_id, system_prompt, user_prompt, anthropic_key, openai_key)
+        add_step(db, task, "parsing", "Processing and structuring output...")
 
         # Parse structured response; fall back gracefully if AI didn't follow format
         result = raw
@@ -176,6 +204,8 @@ Please complete this task and return your JSON response."""
 
         # AI decided this result needs CEO approval → create a proposal
         if needs_approval:
+            add_step(db, task, "proposal",
+                     f"Flagging for your approval — {approval_reason or 'decision required'}")
             # Create a proposal for CEO review
             summary_text = approval_reason or (result[:300] + "..." if len(result) > 300 else result)
             proposal = models.Proposal(
@@ -201,6 +231,8 @@ Please complete this task and return your JSON response."""
             log_activity(db, company.id, employee.id, "success",
                          f"✅ {employee.name} completed: {task.title}")
 
+        add_step(db, task, "done",
+                 f"Done — {len(result)} characters written" if result else "Task completed")
         task.status = "completed"
         task.result = result
         db.merge(task)

@@ -32,7 +32,7 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/login')} className="text-sm text-slate-400 hover:text-white transition-colors">Sign in</button>
-            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Sign In</button>
+            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Get started</button>
           </div>
         </div>
       </nav>
@@ -47,25 +47,25 @@ export default function Landing() {
         <div className="relative max-w-4xl">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs text-accent font-medium">
             <Bot size={12} />
-            The AI-powered business platform for entrepreneurs
+            Built for solo founders who move fast
           </div>
 
           <h1 className="mb-5 text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Your entire team.
+            Your AI team.
             <br />
             <span className="bg-gradient-to-r from-teal-300 via-accent-light to-cyan-400 bg-clip-text text-transparent">
-              Powered by AI.
+              Ready to work now.
             </span>
           </h1>
 
           <p className="mx-auto mb-8 max-w-2xl text-lg text-slate-400 leading-relaxed">
-            1nexio lets you run a full business operation as a solo founder — with AI employees that research, write, analyse, and execute 24/7. Stop doing everything alone.
+            Hire AI employees for research, content, outreach, and analysis. Assign tasks, review results, stay in control — all from one place.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center mb-10">
             <button onClick={handleStart}
               className="flex items-center gap-2 rounded-xl bg-accent px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:shadow-accent/35 hover:-translate-y-0.5 active:scale-95">
-              Platform currently in private access
+              Start building free
               <ArrowRight size={16} />
             </button>
             <button onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
@@ -76,7 +76,7 @@ export default function Landing() {
 
           {/* Social proof */}
           <div className="flex items-center justify-center gap-6 text-xs text-slate-500">
-            {['Free to start', 'Claude & GPT-4 powered', 'No technical skills needed'].map(t => (
+            {['Free to start', 'Claude & GPT-4 powered', 'No credit card required'].map(t => (
               <span key={t} className="flex items-center gap-1.5">
                 <CheckCircle size={11} className="text-emerald-500" />{t}
               </span>
@@ -169,7 +169,7 @@ export default function Landing() {
           {[
             { value: '24/7', label: 'Your AI team never stops' },
             { value: '8+', label: 'Built-in role templates' },
-            { value: '45min', label: 'Avg time saved per task' },
+            { value: '4+', label: 'Task types out of the box' },
           ].map(({ value, label }) => (
             <div key={label} className="flex flex-col items-center py-4">
               <p className="text-3xl font-bold text-white">{value}</p>
@@ -182,8 +182,8 @@ export default function Landing() {
       {/* ── Features ── */}
       <section id="features" className="mx-auto max-w-6xl px-6 py-24">
         <div className="mb-14 text-center">
-          <h2 className="text-3xl font-bold text-white">Everything your business needs</h2>
-          <p className="mt-3 text-slate-400 max-w-xl mx-auto">Built for solo founders and small businesses who want to punch above their weight.</p>
+          <h2 className="text-3xl font-bold text-white">Built for the tasks that eat your week</h2>
+          <p className="mt-3 text-slate-400 max-w-xl mx-auto">Solo founders spend hours on research, writing, and outreach. 1nexio gives you AI employees who handle that work so you can focus on building.</p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -218,8 +218,8 @@ export default function Landing() {
       <section id="how" className="border-t border-white/5 bg-white/[0.015] py-24">
         <div className="mx-auto max-w-4xl px-6">
           <div className="mb-14 text-center">
-            <h2 className="text-3xl font-bold text-white">Up and running in 5 minutes</h2>
-            <p className="mt-3 text-slate-400">No technical setup. No complex configuration.</p>
+            <h2 className="text-3xl font-bold text-white">Set up in a few minutes</h2>
+            <p className="mt-3 text-slate-400">Sign up, hire an AI employee, assign a task — that's the whole setup.</p>
           </div>
 
           <div className="flex flex-col gap-6">
@@ -305,7 +305,7 @@ export default function Landing() {
                 ))}
               </div>
               <button onClick={handleStart} className="w-full rounded-xl bg-accent py-2.5 text-sm font-medium text-white hover:bg-accent-light transition-all">
-                Join waitlist
+                Get notified
               </button>
             </div>
           </div>
@@ -349,11 +349,11 @@ export default function Landing() {
           </p>
           <button onClick={handleStart}
             className="inline-flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:-translate-y-0.5 mx-auto">
-            Request early access
+            Start for free
             <ArrowRight size={16} />
           </button>
           <div className="mt-6 flex items-center justify-center gap-6 text-xs text-slate-500">
-            {['Private beta', 'Waitlist open', 'Cancel anytime'].map(t => (
+            {['Free to start', 'No credit card required', 'Cancel anytime'].map(t => (
               <span key={t} className="flex items-center gap-1.5">
                 <CheckCircle size={11} className="text-emerald-500" />{t}
               </span>
@@ -371,7 +371,7 @@ export default function Landing() {
             </div>
             <span className="text-sm font-semibold text-white">1nexio</span>
           </div>
-          <p className="text-xs text-slate-600">© 2025 1nexio. All rights reserved.</p>
+          <p className="text-xs text-slate-600">© 2026 1nexio. All rights reserved.</p>
           <div className="flex gap-4 text-xs text-slate-500">
             <button onClick={() => navigate('/login')} className="hover:text-white transition-colors">Sign in</button>
             <button onClick={handleStart} className="hover:text-white transition-colors">Sign up</button>
