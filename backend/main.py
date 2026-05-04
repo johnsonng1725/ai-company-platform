@@ -15,6 +15,13 @@ from backend import models, schemas
 
 app = FastAPI(title="AI Company Platform", version="1.0.0")
 
+
+@app.get("/", tags=["health"])
+@app.head("/", tags=["health"], include_in_schema=False)
+def health():
+    """Health check — Render probes this to confirm the service is alive."""
+    return {"status": "ok", "service": "1nexio API"}
+
 _cors_origins_env = os.getenv("ALLOWED_ORIGINS", "")
 _allowed_origins = (
     [o.strip() for o in _cors_origins_env.split(",") if o.strip()]
