@@ -1,4 +1,7 @@
 import os
+import logging
+import secrets
+from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +16,38 @@ from backend.core.auth import get_current_user
 from backend.core.config import settings
 from backend import models, schemas
 
-app = FastAPI(title="AI Company Platform", version="1.0.0")
+_log = logging.getLogger("startup")
+logging.basicConfig(level=logging.INFO)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern FastAPI lifespan handler replacing deprecated @app.on_event."""
+    _log.info(f"DATABASE_URL starts with: {os.getenv('DATABASE_URL', 'NOT SET')[:30]}")
+    _log.info(f"SECRET_KEY set: {bool(os.getenv('SECRET_KEY'))}")
+
+    from backend.core.config import validate_settings
+    try:
+        validate_settings()
+    except RuntimeError as e:
+        _log.error(f"validate_settings failed: {e}")
+        from backend.core import config as _cfg
+        _cfg.settings.SECRET_KEY = secrets.token_hex(32)
+        _log.warning("Generated runtime SECRET_KEY — set SECRET_KEY env var to persist this")
+
+    try:
+        init_db()
+        _log.info("Database initialized successfully")
+    except Exception as e:
+        _log.error(f"init_db failed: {type(e).__name__}: {e}")
+        _log.warning("Database init failed — app will start but DB operations may fail")
+
+    yield  # App is running
+
+    # Shutdown (nothing needed)
+
+
+app = FastAPI(title="AI Company Platform", version="1.0.0", lifespan=lifespan)
 
 
 @app.get("/", tags=["health"])
@@ -150,32 +184,6 @@ def dev_auto_login(db: Session = Depends(get_db)):
     return {"token": token, "company_id": company.id}
 
 
-@app.on_event("startup")
-def startup():
-    import logging
-    import os
-    _log = logging.getLogger("startup")
-    logging.basicConfig(level=logging.INFO)
-
-    _log.info(f"DATABASE_URL starts with: {os.getenv('DATABASE_URL', 'NOT SET')[:30]}")
-    _log.info(f"SECRET_KEY set: {bool(os.getenv('SECRET_KEY'))}")
-
-    from backend.core.config import validate_settings
-    try:
-        validate_settings()
-    except RuntimeError as e:
-        _log.error(f"validate_settings failed: {e}")
-        # Auto-fix: if SECRET_KEY is default, generate one at runtime
-        import secrets
-        from backend.core import config as _cfg
-        _cfg.settings.SECRET_KEY = secrets.token_hex(32)
-        _log.warning("Generated runtime SECRET_KEY — set SECRET_KEY env var to persist this")
-
-    try:
-        init_db()
-    except Exception as e:
-        _log.error(f"init_db failed: {type(e).__name__}: {e}")
-        _log.warning("Database init failed — app will start but DB operations may fail")
 
 
 # Serve React frontend — must be LAST
