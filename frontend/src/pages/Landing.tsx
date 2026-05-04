@@ -32,7 +32,7 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/login')} className="text-sm text-slate-400 hover:text-white transition-colors">Sign in</button>
-            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Get started</button>
+            <button onClick={handleStart} className="btn-primary text-xs px-4 py-2">Start free</button>
           </div>
         </div>
       </nav>
