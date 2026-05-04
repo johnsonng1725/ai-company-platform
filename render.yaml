@@ -1,15 +1,17 @@
 databases:
   - name: ai-company-db
     databaseName: ai_company
-    plan: free
+    plan: starter
 
 services:
-  # ── Web Service (FastAPI backend only — frontend is on Netlify) ──────────────
+  # ── Web Service (FastAPI backend + React frontend) ────────────────────────
   - type: web
     name: ai-company-platform
     runtime: python
     plan: starter
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: |
+      cd frontend && npm install && npm run build && cd ..
+      pip install -r backend/requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
@@ -22,17 +24,17 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-      - key: ALLOWED_ORIGINS
-        value: "https://1nexio.com,http://1nexio.com,https://1nexio.netlify.app"
       - key: PYTHON_VERSION
         value: "3.11.0"
+      - key: NODE_VERSION
+        value: "20.0.0"
 
   # ── Background Worker (24/7 AI Agent Executor) ────────────────────────────
   - type: worker
     name: ai-company-worker
     runtime: python
     plan: starter
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r backend/requirements.txt
     startCommand: python worker.py
     envVars:
       - key: DATABASE_URL
