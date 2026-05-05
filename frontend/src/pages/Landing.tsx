@@ -10,7 +10,7 @@ export default function Landing() {
   const token = localStorage.getItem('token')
 
   function handleStart() {
-    navigate(token ? '/companies' : '/login')
+    navigate(token ? '/companies' : '/login?mode=register')
   }
 
   return (

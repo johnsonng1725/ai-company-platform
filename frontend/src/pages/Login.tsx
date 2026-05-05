@@ -29,7 +29,9 @@ function FacebookIcon() {
 export default function Login() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [mode, setMode]       = useState<'login' | 'register'>('login')
+  const [mode, setMode]       = useState<'login' | 'register'>(
+    searchParams.get('mode') === 'register' ? 'register' : 'login'
+  )
   const [email, setEmail]     = useState('')
   const [password, setPassword] = useState('')
   const [name, setName]       = useState('')
