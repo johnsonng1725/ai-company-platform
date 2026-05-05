@@ -357,15 +357,15 @@ def main():
             process_pending_tasks()
 
             # Every 5 minutes: check scheduled employees
-            if loop_count % 30 == 0:
+            if loop_count % 100 == 0:
                 check_scheduled_employees()
 
             # Every hour: log heartbeat
-            if loop_count % 360 == 0:
+            if loop_count % 1200 == 0:
                 log.info(f"💓 Worker heartbeat — {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
 
             loop_count += 1
-            time.sleep(10)  # Check every 10 seconds
+            time.sleep(3)  # Check every 3 seconds
 
         except KeyboardInterrupt:
             log.info("Worker stopped by user.")
