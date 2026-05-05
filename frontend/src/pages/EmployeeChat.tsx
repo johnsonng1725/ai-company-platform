@@ -87,10 +87,12 @@ const ROLE_TEMPLATES: Record<string, string[]> = {
     'Build a simple pricing model for [product/service] considering costs, margins, and competitor pricing',
   ],
   'Company Secretary': [
-    'Draft an NDA between my company [Company A] and [Company B] for a business collaboration',
-    'Write a board resolution to open a corporate bank account for [company name]',
+    'How do I register a Sdn Bhd in Malaysia? Give me the full step-by-step guide.',
+    'Draft a board resolution to open a corporate bank account for [company name]',
+    'What are the annual compliance deadlines for my Sdn Bhd this year?',
     'Prepare a directors\' resolution approving the appointment of [name] as a new director',
-    'What are the SSM annual return requirements for a Sdn Bhd company in Malaysia?',
+    'Explain the Beneficial Owner (BO) reporting requirements for a Malaysian Sdn Bhd',
+    'Draft a Secretary Confirmation Letter for [company name]',
   ],
   'Customer Support': [
     'Write answers to the 10 most common support questions for [your product]',
@@ -294,37 +296,105 @@ function QuickBtn({ icon, label, onClick }: { icon: React.ReactNode; label: stri
 // ══════════════════════════════════════════════════════════════════════════════
 
 // ── Company Secretary Panel ───────────────────────────────────────────────────
+function SecSection({ title, icon, children, defaultOpen = false }: {
+  title: string; icon: React.ReactNode; children: React.ReactNode; defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+      <button onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-white/5 transition-colors">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">{icon}{title}</span>
+        {open ? <ChevronUp size={12} className="text-slate-500" /> : <ChevronDown size={12} className="text-slate-500" />}
+      </button>
+      {open && <div className="px-3 pb-3 flex flex-col gap-1.5 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}><div className="pt-2 flex flex-col gap-1.5">{children}</div></div>}
+    </div>
+  )
+}
+
 function SecretaryPanel({ onTask }: { onTask: (msg: string) => void }) {
   return (
-    <div className="flex flex-col gap-4">
-      {/* SSM Quick Actions */}
-      <div>
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><Building2 size={11} />SSM & Company</p>
-        <div className="flex flex-col gap-1.5">
-          <QuickBtn icon={<FileText size={13} />} label="Draft an NDA between two parties" onClick={() => onTask('Draft a professional NDA (Non-Disclosure Agreement) between two Malaysian companies for a business collaboration. Include all standard clauses.')} />
-          <QuickBtn icon={<FileText size={13} />} label="Board resolution — open bank account" onClick={() => onTask('Prepare a directors\' board resolution for a Malaysian Sdn Bhd to open a corporate bank account. Use proper Malaysian company law format.')} />
-          <QuickBtn icon={<FileText size={13} />} label="Directors' resolution — new appointment" onClick={() => onTask('Prepare a directors\' resolution approving the appointment of a new director for a Malaysian Sdn Bhd company. Include all required statutory statements.')} />
-          <QuickBtn icon={<FileText size={13} />} label="Memorandum & Articles of Association guide" onClick={() => onTask('Explain the key clauses in a standard Malaysian Sdn Bhd Memorandum and Articles of Association (M&A) and what founders need to know.')} />
-          <QuickBtn icon={<ShieldCheck size={13} />} label="SSM annual return — what do I need?" onClick={() => onTask('Explain the full SSM annual return requirements for a Malaysian Sdn Bhd — what documents are needed, deadlines, and penalties for late filing.')} />
-          <QuickBtn icon={<ShieldCheck size={13} />} label="How to register a Sdn Bhd in Malaysia" onClick={() => onTask('Give me a complete step-by-step guide to registering a Sdn Bhd company in Malaysia through SSM, including all costs and documents required.')} />
-        </div>
-      </div>
+    <div className="flex flex-col gap-2">
 
-      {/* Compliance Calendar */}
-      <div>
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><Calendar size={11} />Compliance Deadlines</p>
+      {/* 1. Company Incorporation */}
+      <SecSection title="Company Incorporation" icon={<Building2 size={11} />} defaultOpen>
+        <QuickBtn icon={<FileText size={13} />} label="Full Sdn Bhd registration guide" onClick={() => onTask('Give me a complete A-to-Z guide to registering a Sdn Bhd in Malaysia through SSM — company name search, required documents, government fees, timeline, and what happens after incorporation.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Company name search — is my name available?" onClick={() => onTask('Explain how to do a company name search on SSM MyData or e-Lodgement, the naming rules for Sdn Bhd, what names are rejected, and how to reserve an approved name.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Certificate of Incorporation (Section 17) explained" onClick={() => onTask('Explain what the SSM Certificate of Incorporation (Section 17) is, what information it contains, and how to use it for bank account opening and legal purposes in Malaysia.')} />
+        <QuickBtn icon={<FileText size={13} />} label="First Board of Directors' Resolution" onClick={() => onTask('Draft the First Board of Directors\' Resolution for a newly incorporated Malaysian Sdn Bhd. Include resolutions for company seal, bank account authorisation, and appointment of officers.')} />
+        <QuickBtn icon={<ShieldCheck size={13} />} label="Registered address & next of kin requirements" onClick={() => onTask('Explain the registered office address requirements for a Malaysian Sdn Bhd and when a single-director company needs to appoint a Next of Kin under the Companies Act 2016.')} />
+        <QuickBtn icon={<FileText size={13} />} label="What is a company constitution (M&A)?" onClick={() => onTask('Explain the difference between a customised company constitution and the standard Companies Act 2016 default rules for a Sdn Bhd. When should a startup draft a custom constitution and what key clauses should it include?')} />
+      </SecSection>
+
+      {/* 2. Board Resolutions */}
+      <SecSection title="Board Resolutions" icon={<FileText size={11} />}>
+        <QuickBtn icon={<FileText size={13} />} label="Open corporate bank account" onClick={() => onTask('Draft a directors\' board resolution for a Malaysian Sdn Bhd to open a corporate bank account. Include authorised signatories clause and proper Companies Act 2016 format.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Accept banking / loan facility" onClick={() => onTask('Draft a directors\' board resolution for a Malaysian Sdn Bhd to accept a banking facility or loan from a financial institution. Include terms acceptance and authorised signatories.')} />
+        <QuickBtn icon={<Users size={13} />} label="Appoint new director" onClick={() => onTask('Draft a directors\' resolution to appoint a new director for a Malaysian Sdn Bhd under the Companies Act 2016. Include the statutory consent statement and effective date.')} />
+        <QuickBtn icon={<Users size={13} />} label="Resign / remove director" onClick={() => onTask('Draft a board resolution to formalise the resignation or removal of a director from a Malaysian Sdn Bhd. Include SSM Form 49 filing obligations and effective date.')} />
+        <QuickBtn icon={<ShieldCheck size={13} />} label="Appoint / change auditor" onClick={() => onTask('Draft a resolution to appoint or change the company auditor for a Malaysian Sdn Bhd. Include the MIA-registered auditor appointment wording under the Companies Act 2016.')} />
+        <QuickBtn icon={<ShieldCheck size={13} />} label="Appoint / change tax agent" onClick={() => onTask('Draft a resolution to appoint or change the company tax agent for a Malaysian Sdn Bhd. Include LHDN authorisation wording.')} />
+        <QuickBtn icon={<Calendar size={13} />} label="Change financial year-end" onClick={() => onTask('Draft a resolution to change the financial year-end of a Malaysian Sdn Bhd. Explain the SSM notification requirement and any impact on audit and tax deadlines.')} />
+        <QuickBtn icon={<Building2 size={13} />} label="Change business address" onClick={() => onTask('Draft a resolution to change the registered or principal business address of a Malaysian Sdn Bhd. Include SSM Form 44 / MyCoID update steps.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Change business nature (MSIC code)" onClick={() => onTask('Draft a resolution to change the principal business activity of a Malaysian Sdn Bhd and explain how to update the MSIC code in SSM records.')} />
+      </SecSection>
+
+      {/* 3. Annual Compliance */}
+      <SecSection title="Annual Compliance" icon={<ShieldCheck size={11} />}>
+        <QuickBtn icon={<ShieldCheck size={13} />} label="Annual Return (AR) — full guide" onClick={() => onTask('Explain the Annual Return requirements for a Malaysian Sdn Bhd — what information is required, the filing deadline (30 days after AGM), how to file via e-Lodgement, and penalties for late submission.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Audited Financial Statements (AFS) guide" onClick={() => onTask('Explain when a Malaysian Sdn Bhd must submit Audited Financial Statements to SSM, the timeline, how to file via MBRS, and the exemptions for dormant or small companies.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Unaudited Financial Statements (UFS) — am I eligible?" onClick={() => onTask('Explain the criteria for a Malaysian Sdn Bhd to qualify for submitting Unaudited Financial Statements (UFS) instead of audited accounts under the Companies Act 2016.')} />
+        <QuickBtn icon={<ShieldCheck size={13} />} label="Beneficial Owner (BO) reporting explained" onClick={() => onTask('Explain the Beneficial Owner (BO) reporting requirements for Malaysian companies under the Companies Act 2016 — who qualifies as a BO, the SSM register obligations, and penalties for non-compliance.')} />
+        <QuickBtn icon={<FileText size={13} />} label="MBRS filing — what is it and how to file?" onClick={() => onTask('Explain what the Malaysian Business Reporting System (MBRS) is, how to prepare and submit XBRL financial statements via MBRS for a Sdn Bhd, and the key deadlines.')} />
+        <QuickBtn icon={<Calendar size={13} />} label="What are my compliance deadlines this year?" onClick={() => onTask('List all the key statutory compliance deadlines for a Malaysian Sdn Bhd for the next 12 months — including Annual Return, financial statements, tax, SST, EPF, PCB, and BO reporting. Format as a compliance calendar table.')} />
+      </SecSection>
+
+      {/* 4. Corporate Exercises */}
+      <SecSection title="Corporate Exercises (Ad-Hoc)" icon={<TrendingUp size={11} />}>
+        <QuickBtn icon={<Users size={13} />} label="Share transfer between shareholders" onClick={() => onTask('Draft a share transfer board resolution and explain the full process for transferring shares between shareholders in a Malaysian Sdn Bhd — including SSM Form 32A, stamp duty, and timeline.')} />
+        <QuickBtn icon={<DollarSign size={13} />} label="Increase share capital" onClick={() => onTask('Explain how to increase the paid-up share capital of a Malaysian Sdn Bhd — draft the necessary board and members\' resolutions, explain SSM Form 24/HOA, and the stamp duty calculation.')} />
+        <QuickBtn icon={<DollarSign size={13} />} label="Declare dividends" onClick={() => onTask('Draft a dividend declaration resolution for a Malaysian Sdn Bhd. Explain the SSM and LHDN compliance requirements, solvency statement, and how dividends are treated for tax purposes.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Allot preference shares" onClick={() => onTask('Explain the process to allot preference shares in a Malaysian Sdn Bhd — draft the resolution, explain the differences from ordinary shares, and list the SSM filing requirements.')} />
+        <QuickBtn icon={<Building2 size={13} />} label="Purchase / dispose company property" onClick={() => onTask('Draft a board resolution authorising the purchase, transfer, or disposal of commercial property by a Malaysian Sdn Bhd. Include the required approvals and stamp duty considerations.')} />
+        <QuickBtn icon={<Building2 size={13} />} label="Company name change" onClick={() => onTask('Explain the complete process to change a company name in Malaysia — SSM application, required documents, fee, timeline, and how to update all official records and bank accounts after approval.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Adopt / amend company constitution" onClick={() => onTask('Explain how a Malaysian Sdn Bhd can abolish its existing constitution and adopt the standard Companies Act 2016 rules, or how to draft and adopt a customised constitution. Include the special resolution and SSM filing steps.')} />
+      </SecSection>
+
+      {/* 5. Documents & Letters */}
+      <SecSection title="Documents & Letters" icon={<FileText size={11} />}>
+        <QuickBtn icon={<FileText size={13} />} label="Secretary confirmation letter" onClick={() => onTask('Draft a Company Secretary Confirmation Letter for a Malaysian Sdn Bhd confirming the company\'s current directors, shareholders, and registered address. Use formal letterhead format.')} />
+        <QuickBtn icon={<FileText size={13} />} label="CTC certified true copy — what is it?" onClick={() => onTask('Explain what a Certified True Copy (CTC) is in Malaysian company law, what documents are typically CTC-certified (SSM forms, ICs, passports), who can certify them, and when banks or third parties require them.')} />
+        <QuickBtn icon={<FileText size={13} />} label="Draft a professional NDA" onClick={() => onTask('Draft a comprehensive NDA (Non-Disclosure Agreement) between two Malaysian companies for a business collaboration. Include mutual confidentiality, definition of confidential information, exclusions, 2-year term, and governing law (Malaysia).')} />
+        <QuickBtn icon={<FileText size={13} />} label="Letter of authorisation template" onClick={() => onTask('Draft a formal Letter of Authorisation for a Malaysian company authorising a named person to act on behalf of the company for [banking/government/legal] matters. Include company stamp and director signature lines.')} />
+        <QuickBtn icon={<ShieldCheck size={13} />} label="Statutory declaration (SD) explained" onClick={() => onTask('Explain what a Statutory Declaration (SD) is in Malaysia, when a company director must sign one, how to get it commissioned by a Commissioner for Oaths, and what it is used for.')} />
+      </SecSection>
+
+      {/* 6. Compliance Calendar */}
+      <SecSection title="Compliance Deadlines" icon={<Calendar size={11} />} defaultOpen>
         <div className="flex flex-col gap-1.5">
           {COMPLIANCE_ITEMS.map((item) => (
-            <div key={item.label} className={`rounded-xl px-3 py-2.5 border ${URGENCY_COLORS[item.urgency]}`}>
+            <button key={item.label} onClick={() => onTask(`Explain the "${item.label}" compliance requirement for a Malaysian Sdn Bhd in detail — what it involves, the exact deadline, how to file, and what happens if it's missed.`)}
+              className={`rounded-xl px-3 py-2.5 border text-left w-full hover:opacity-90 transition-opacity ${URGENCY_COLORS[item.urgency]}`}>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium">{item.label}</span>
                 <span className="text-[10px] opacity-70">{format(item.date, 'dd MMM')}</span>
               </div>
               <p className="mt-0.5 text-[10px] opacity-60">{item.desc}</p>
-            </div>
+            </button>
           ))}
         </div>
-      </div>
+      </SecSection>
+
+      {/* 7. Learn */}
+      <SecSection title="Learn — Malaysian Company Law" icon={<Lightbulb size={11} />}>
+        <QuickBtn icon={<Lightbulb size={13} />} label="Companies Act 2016 — key changes explained" onClick={() => onTask('Summarise the key changes introduced by the Malaysian Companies Act 2016 compared to the old Companies Act 1965, and what they mean for Sdn Bhd founders today.')} />
+        <QuickBtn icon={<Lightbulb size={13} />} label="What is a company secretary's legal role?" onClick={() => onTask('Explain the legal role and duties of a Company Secretary under the Malaysian Companies Act 2016 — what they must do, their liability, and why every Sdn Bhd must appoint one within 30 days of incorporation.')} />
+        <QuickBtn icon={<Lightbulb size={13} />} label="Digital signature & e-KYC for directors" onClick={() => onTask('Explain how Malaysian Sdn Bhd directors can use digital signatures and e-KYC (Know Your Customer) to authorise company documents online — what platforms are legally accepted and how it works.')} />
+        <QuickBtn icon={<Lightbulb size={13} />} label="SSM vs LHDN vs EPF — who does what?" onClick={() => onTask('Explain the role of SSM, LHDN (Inland Revenue Board), and EPF/SOCSO for a Malaysian Sdn Bhd — what each agency regulates, the key forms each requires, and the main deadlines for each.')} />
+        <QuickBtn icon={<Lightbulb size={13} />} label="Dormant company — obligations & options" onClick={() => onTask('Explain what "dormant company" status means for a Malaysian Sdn Bhd, what compliance obligations still apply, how to officially declare a company dormant with SSM, and whether it\'s better to keep it dormant or wind it up.')} />
+        <QuickBtn icon={<Lightbulb size={13} />} label="Winding up a company — full guide" onClick={() => onTask('Explain the process to voluntarily wind up (strike off) a Malaysian Sdn Bhd — the requirements, SSM Form 308 application, timeline, cost, and what to do with company assets and liabilities before closing.')} />
+      </SecSection>
+
     </div>
   )
 }
