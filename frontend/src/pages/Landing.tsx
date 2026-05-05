@@ -7,10 +7,8 @@ import {
 
 export default function Landing() {
   const navigate = useNavigate()
-  const token = localStorage.getItem('token')
-
   function handleStart() {
-    navigate(token ? '/companies' : '/login?mode=register')
+    navigate('/login?mode=register')
   }
 
   return (
