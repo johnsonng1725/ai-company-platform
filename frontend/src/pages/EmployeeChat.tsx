@@ -1,3 +1,4 @@
+import ReactMarkdown from 'react-markdown'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
@@ -261,7 +262,9 @@ function Message({ task, employee, onCopied }: { task: Task; employee: Employee;
           {task.status === 'failed' && <div className="rounded-xl px-4 py-3 text-sm text-red-400" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>{task.error || 'An error occurred.'}</div>}
           {task.status === 'completed' && task.result && (
             <div className="rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className={`text-sm text-slate-200 leading-relaxed whitespace-pre-wrap ${!expanded && isLong ? 'line-clamp-6' : ''}`}>{task.result}</div>
+              <div className={`prose prose-invert prose-sm max-w-none text-slate-200 ${!expanded && isLong ? 'line-clamp-6' : ''}`}>
+                <ReactMarkdown>{(task.result || '').replace(/\\n/g, '\n')}</ReactMarkdown>
+              </div>
               {isLong && <button onClick={() => setExpanded(!expanded)} className="mt-2 flex items-center gap-1 text-xs text-accent-light hover:underline">{expanded ? <><ChevronUp size={12} />Show less</> : <><ChevronDown size={12} />Show more</>}</button>}
               <div className="mt-3 flex items-center justify-between border-t pt-2.5" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                 <p className="text-xs text-slate-600">{formatDistanceToNow(new Date(task.updated_at), { addSuffix: true })}</p>
