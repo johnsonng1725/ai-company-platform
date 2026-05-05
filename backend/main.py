@@ -50,10 +50,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="AI Company Platform", version="1.0.0", lifespan=lifespan)
 
 
-@app.get("/", tags=["health"])
+@app.get("/api/health", tags=["health"])
 @app.head("/", tags=["health"], include_in_schema=False)
 def health():
-    """Health check — Render probes this to confirm the service is alive."""
+    """Health check — Render probes HEAD / to confirm the service is alive."""
     return {"status": "ok", "service": "1nexio API"}
 
 _cors_origins_env = os.getenv("ALLOWED_ORIGINS", "")
@@ -192,7 +192,8 @@ FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
 if FRONTEND_DIST.exists():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
 
+    @app.get("/", include_in_schema=False)
     @app.get("/{full_path:path}", include_in_schema=False)
-    def serve_spa(full_path: str):
+    def serve_spa(full_path: str = ""):
         index = FRONTEND_DIST / "index.html"
         return FileResponse(str(index))
