@@ -142,12 +142,9 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
             {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>}
 
             <div className="flex justify-end gap-3 pt-1">
-              <button type="button" onClick={skipAndEnter} className="btn-ghost text-xs">
-                Skip for now
-              </button>
-              <button onClick={saveKeyAndEnter} disabled={loading} className="btn-primary">
+              <button onClick={saveKeyAndEnter} disabled={loading || !anthropicKey.trim()} className="btn-primary">
                 {loading && <Loader2 size={14} className="animate-spin" />}
-                {anthropicKey.trim() ? 'Save & Enter' : 'Enter without key'}
+                Save & Enter
               </button>
             </div>
           </div>
