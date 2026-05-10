@@ -22,22 +22,6 @@ _CALLBACK_BASE = os.getenv("API_BASE_URL",  "https://1nexio.com")
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
-def _auto_create_company(db: Session, user: models.User):
-    """Create a starter company for brand-new OAuth users."""
-    company_name = user.full_name or user.email.split("@")[0]
-    company = models.Company(
-        owner_id=user.id,
-        name=f"{company_name}'s AI Company",
-        description="My one-person company powered by AI employees.",
-    )
-    db.add(company)
-    db.flush()
-    db.add(models.ActivityLog(
-        company_id=company.id,
-        level="success",
-        message="🎉 Welcome! Your AI company has been created. Hire your first employee to get started.",
-    ))
-
 
 def _finish(user: models.User) -> RedirectResponse:
     token = create_access_token({"sub": str(user.id)})
@@ -105,7 +89,6 @@ async def google_callback(code: str = "", error: str = "", db: Session = Depends
         user = models.User(email=email, full_name=name, avatar_url=avatar, google_id=google_id)
         db.add(user)
         db.flush()
-        _auto_create_company(db, user)
     else:
         user.google_id = google_id
         if avatar:
@@ -173,7 +156,6 @@ async def facebook_callback(code: str = "", error: str = "", db: Session = Depen
         user = models.User(email=email, full_name=name, avatar_url=avatar, facebook_id=fb_id)
         db.add(user)
         db.flush()
-        _auto_create_company(db, user)
     else:
         user.facebook_id = fb_id
         if avatar:

@@ -22,24 +22,6 @@ def register(data: schemas.UserRegister, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    # Auto-create company on signup so user lands on a working dashboard
-    company_name = data.full_name or data.email.split("@")[0]
-    company = models.Company(
-        owner_id=user.id,
-        name=f"{company_name}'s AI Company",
-        description="My one-person company powered by AI employees.",
-    )
-    db.add(company)
-    db.flush()  # get company.id without committing yet
-
-    db.add(models.ActivityLog(
-        company_id=company.id,
-        employee_id=None,
-        level="success",
-        message="🎉 Welcome! Your AI company has been created. Hire your first employee to get started.",
-    ))
-    db.commit()
-
     token = create_access_token({"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer", "user": user}
 
