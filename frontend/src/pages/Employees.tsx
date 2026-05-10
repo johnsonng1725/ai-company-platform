@@ -136,48 +136,41 @@ function EmployeeModal({ companyId, editing, company, onClose, onSaved }: {
 
           <div>
             <label className="mb-2 block text-xs font-medium text-slate-400">AI Model</label>
-            <div className="flex flex-col gap-1.5">
-              {['Anthropic', 'OpenAI'].map((provider) => {
-                const hasKey = provider === 'Anthropic'
-                  ? (company?.has_anthropic_key ?? true)
-                  : (company?.has_openai_key ?? false)
-                return (
-                  <div key={provider}>
-                    <p className={`mb-1 flex items-center gap-1.5 text-xs ${hasKey ? 'text-slate-500' : 'text-slate-700'}`}>
-                      {PROVIDER_ICON[provider]} {provider}
-                      {!hasKey && <span className="text-slate-700">— no key added</span>}
-                    </p>
-                    <div className="flex flex-col gap-1">
-                      {MODELS.filter((m) => m.provider === provider).map((m) => (
-                        <button key={m.id} type="button"
-                          onClick={() => hasKey && setModel(m.id)}
-                          disabled={!hasKey}
-                          className={`flex items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-all border ${
-                            !hasKey
-                              ? 'opacity-30 cursor-not-allowed'
-                              : model === m.id
-                              ? 'border-accent/50 bg-accent/10 text-white'
-                              : 'text-slate-400 hover:border-white/15 hover:text-slate-200'
-                          }`}
-                          style={{ borderColor: model === m.id ? undefined : 'rgba(255,255,255,0.07)' }}>
-                          <span className="font-medium">{m.label}</span>
-                          <span className="flex items-center gap-3 text-slate-500">
-                            <span>{m.tier}</span>
-                            <span className="font-mono tracking-wide">{m.cost}</span>
-                          </span>
-                        </button>
-                      ))}
+            {(() => {
+              const available = ['Anthropic', 'OpenAI'].filter(p =>
+                p === 'Anthropic' ? (company?.has_anthropic_key ?? true) : (company?.has_openai_key ?? false)
+              )
+              if (available.length === 0) return (
+                <p className="text-xs text-amber-500/70">No API keys added yet — go to Settings to add them.</p>
+              )
+              return (
+                <div className="flex flex-col gap-1.5">
+                  {available.map((provider) => (
+                    <div key={provider}>
+                      <p className="mb-1 flex items-center gap-1.5 text-xs text-slate-500">
+                        {PROVIDER_ICON[provider]} {provider}
+                      </p>
+                      <div className="flex flex-col gap-1">
+                        {MODELS.filter((m) => m.provider === provider).map((m) => (
+                          <button key={m.id} type="button" onClick={() => setModel(m.id)}
+                            className={`flex items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-all border ${model === m.id ? 'border-accent/50 bg-accent/10 text-white' : 'text-slate-400 hover:border-white/15 hover:text-slate-200'}`}
+                            style={{ borderColor: model === m.id ? undefined : 'rgba(255,255,255,0.07)' }}>
+                            <span className="font-medium">{m.label}</span>
+                            <span className="flex items-center gap-3 text-slate-500">
+                              <span>{m.tier}</span>
+                              <span className="font-mono tracking-wide">{m.cost}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-            {!(company?.has_anthropic_key) && !(company?.has_openai_key) && (
-              <p className="mt-2 text-xs text-amber-500/70">No API keys added yet — go to Settings to add them.</p>
-            )}
-            {(company?.has_anthropic_key || company?.has_openai_key) && !(company?.has_anthropic_key && company?.has_openai_key) && (
-              <p className="mt-2 text-xs text-slate-600">Add more keys in Settings to unlock other providers.</p>
-            )}
+                  ))}
+                  {available.length < 2 && (
+                    <p className="mt-1 text-xs text-slate-600">Add more keys in Settings to unlock other providers.</p>
+                  )}
+                </div>
+              )
+            })()}
           </div>
 
           {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>}
