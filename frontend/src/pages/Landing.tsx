@@ -268,42 +268,67 @@ export default function Landing() {
 
       {/* ── Pricing ── */}
       <section id="pricing" className="border-t border-white/5 bg-white/[0.015] py-24">
-        <div className="mx-auto max-w-4xl px-6 text-center">
+        <div className="mx-auto max-w-5xl px-6 text-center">
           <h2 className="text-3xl font-bold text-white mb-3">Simple, honest pricing</h2>
-          <p className="text-slate-400 mb-12">Start free. Upgrade when you're ready.</p>
-          <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
-            {/* Free */}
+          <p className="text-slate-400 mb-3">7-day free trial with full Pro features — no credit card needed.</p>
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-12"
+               style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.25)' }}>
+            <CheckCircle size={12} className="text-accent-light" />
+            <span className="text-xs font-medium text-accent-light">Trial includes Pro plan — 10 employees & 300 tasks/month</span>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+            {/* Starter */}
             <div className="card p-7 text-left">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Starter</p>
-              <p className="text-4xl font-bold text-white mb-1">Free</p>
-              <p className="text-sm text-slate-500 mb-6">Perfect to get started</p>
+              <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Starter</p>
+              <p className="text-4xl font-bold text-white mb-0.5">RM59<span className="text-lg font-normal text-slate-400">/mo</span></p>
+              <p className="text-sm text-slate-500 mb-6">Own key, no limits</p>
               <div className="flex flex-col gap-2.5 mb-8">
-                {['1 company', '3 AI employees', 'All role templates', 'Meeting rooms', 'Proposal workflow'].map(f => (
+                {['Unlimited AI employees', 'Unlimited tasks', 'All features unlocked', 'Bring your own API key', 'You pay Anthropic directly'].map(f => (
                   <span key={f} className="flex items-center gap-2 text-sm text-slate-300">
-                    <CheckCircle size={14} className="text-emerald-400 shrink-0" />{f}
+                    <CheckCircle size={14} className="text-blue-400 shrink-0" />{f}
                   </span>
                 ))}
               </div>
-              <button onClick={handleStart} className="w-full rounded-xl border border-white/10 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/5 transition-all">
-                Sign in
+              <button onClick={handleStart} className="w-full rounded-xl border border-blue-500/30 py-2.5 text-sm font-medium text-blue-300 hover:border-blue-400 hover:text-blue-200 transition-all">
+                Start Free Trial
               </button>
             </div>
             {/* Pro */}
             <div className="card p-7 text-left relative overflow-hidden"
                  style={{ borderColor: 'rgba(13,148,136,0.4)', background: 'rgba(13,148,136,0.05)' }}>
-              <div className="absolute top-4 right-4 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold text-white">COMING SOON</div>
-              <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-2">Pro</p>
-              <p className="text-4xl font-bold text-white mb-1">$29<span className="text-lg font-normal text-slate-400">/mo</span></p>
-              <p className="text-sm text-slate-500 mb-6">For serious founders</p>
+              <div className="absolute top-4 right-4 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold text-white">POPULAR</div>
+              <p className="text-xs font-semibold text-accent-light uppercase tracking-wider mb-2">Pro</p>
+              <p className="text-4xl font-bold text-white mb-0.5">RM129<span className="text-lg font-normal text-slate-400">/mo</span></p>
+              <p className="text-sm text-slate-500 mb-6">Platform key included</p>
               <div className="flex flex-col gap-2.5 mb-8">
-                {['Unlimited companies', 'Unlimited AI employees', 'Priority AI processing', 'Custom AI models', 'Advanced analytics', 'Priority support'].map(f => (
+                {['10 AI employees', '300 tasks per month', 'All features unlocked', '1nexio platform key', 'No API setup required'].map(f => (
                   <span key={f} className="flex items-center gap-2 text-sm text-slate-300">
                     <CheckCircle size={14} className="text-accent shrink-0" />{f}
                   </span>
                 ))}
               </div>
               <button onClick={handleStart} className="w-full rounded-xl bg-accent py-2.5 text-sm font-medium text-white hover:bg-accent-light transition-all">
-                Get notified
+                Start Free Trial
+              </button>
+            </div>
+            {/* Max */}
+            <div className="card p-7 text-left relative overflow-hidden"
+                 style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.04)' }}>
+              <div className="absolute top-4 right-4 rounded-full px-2.5 py-0.5 text-[10px] font-bold text-amber-300"
+                   style={{ background: 'rgba(245,158,11,0.2)' }}>BEST VALUE</div>
+              <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">Max</p>
+              <p className="text-4xl font-bold text-white mb-0.5">RM399<span className="text-lg font-normal text-slate-400">/mo</span></p>
+              <p className="text-sm text-slate-500 mb-6">Unlimited power</p>
+              <div className="flex flex-col gap-2.5 mb-8">
+                {['Unlimited AI employees', '1,000 tasks per month', 'All features unlocked', '1nexio platform key', 'Priority processing'].map(f => (
+                  <span key={f} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle size={14} className="text-amber-400 shrink-0" />{f}
+                  </span>
+                ))}
+              </div>
+              <button onClick={handleStart} className="w-full rounded-xl py-2.5 text-sm font-medium text-white transition-all"
+                      style={{ background: 'linear-gradient(to right, #f59e0b, #f97316)' }}>
+                Start Free Trial
               </button>
             </div>
           </div>
@@ -343,15 +368,15 @@ export default function Landing() {
             Stop doing everything yourself.
           </h2>
           <p className="text-slate-400 mb-8 text-lg">
-            Build your AI company today — free, no credit card, ready in minutes.
+            Start your 7-day free trial today — no credit card, ready in minutes.
           </p>
           <button onClick={handleStart}
             className="inline-flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-sm font-semibold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-light hover:-translate-y-0.5 mx-auto">
-            Start for free
+            Start Free Trial
             <ArrowRight size={16} />
           </button>
           <div className="mt-6 flex items-center justify-center gap-6 text-xs text-slate-500">
-            {['Free to start', 'No credit card required', 'Cancel anytime'].map(t => (
+            {['7-day free trial', 'No credit card required', 'Cancel anytime'].map(t => (
               <span key={t} className="flex items-center gap-1.5">
                 <CheckCircle size={11} className="text-emerald-500" />{t}
               </span>
