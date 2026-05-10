@@ -169,7 +169,12 @@ export interface Stats {
   pending_proposals: number
   tasks_today: number
   tasks_this_week: number
+  tasks_this_month: number
   tasks_completed_total: number
   hours_saved: number
   proposals_approved: number
+  plan: string
+  plan_task_limit: number | null
+  plan_employee_limit: number | null
+  trial_started_at: string | null
 }

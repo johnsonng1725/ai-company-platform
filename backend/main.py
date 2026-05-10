@@ -101,6 +101,7 @@ def get_stats(
 
     from datetime import timedelta
     week_start = datetime.combine(date.today() - timedelta(days=date.today().weekday()), datetime.min.time())
+    month_start = datetime.combine(date.today().replace(day=1), datetime.min.time())
 
     tasks_base = db.query(models.Task).join(models.AIEmployee).filter(
         models.AIEmployee.company_id == comp.id
@@ -108,8 +109,12 @@ def get_stats(
     tasks_completed_total = tasks_base.filter(models.Task.status == "completed").count()
     tasks_this_week = tasks_base.filter(models.Task.created_at >= week_start).count()
     tasks_today = tasks_base.filter(models.Task.created_at >= today_start).count()
+    tasks_this_month = tasks_base.filter(models.Task.created_at >= month_start).count()
     proposals_approved = db.query(models.Proposal).filter(
         models.Proposal.company_id == comp.id, models.Proposal.status == "approved").count()
+
+    from backend.core.plans import PLAN_LIMITS
+    plan_limits = PLAN_LIMITS.get(current_user.plan, PLAN_LIMITS["trial"])
 
     return {
         "employees": db.query(models.AIEmployee).filter(
@@ -120,10 +125,15 @@ def get_stats(
             models.Proposal.company_id == comp.id, models.Proposal.status == "pending").count(),
         "tasks_today": tasks_today,
         "tasks_this_week": tasks_this_week,
+        "tasks_this_month": tasks_this_month,
         "tasks_completed_total": tasks_completed_total,
         "proposals_approved": proposals_approved,
-        # Rough "hours saved" estimate: assume each AI task saves ~45 min of human work
         "hours_saved": round(tasks_completed_total * 0.75, 1),
+        # Plan limits for the usage bar
+        "plan": current_user.plan,
+        "plan_task_limit": plan_limits["monthly_tasks"],   # None = unlimited
+        "plan_employee_limit": plan_limits["max_employees"],  # None = unlimited
+        "trial_started_at": current_user.created_at.isoformat() if current_user.plan == "trial" else None,
     }
 
 

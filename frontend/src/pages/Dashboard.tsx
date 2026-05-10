@@ -2,12 +2,87 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Users, Zap, FileText, CheckSquare, RefreshCw, Plus,
-  Clock, TrendingUp, ArrowRight, CheckCircle, Circle,
+  Clock, TrendingUp, ArrowRight, CheckCircle, Circle, AlertTriangle,
 } from 'lucide-react'
 import { employees as employeesApi, proposals as proposalsApi, activity as activityApi, stats as statsApi } from '../lib/api'
 import type { Employee, Proposal, ActivityLog, Stats } from '../lib/api'
 import EmployeeCard from '../components/EmployeeCard'
 import ActivityFeed from '../components/ActivityFeed'
+
+/* ── Plan / Trial banner ───────────────────────────────────────────── */
+function PlanBanner({ stats, navigate }: { stats: Stats; navigate: (p: string) => void }) {
+  const { plan, plan_task_limit, tasks_this_month, trial_started_at } = stats
+
+  // ── Trial countdown ──
+  if (plan === 'trial' && trial_started_at) {
+    const trialEnd = new Date(new Date(trial_started_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+    const msLeft = trialEnd.getTime() - Date.now()
+    const daysLeft = Math.floor(msLeft / (1000 * 60 * 60 * 24))
+    const hoursLeft = Math.floor((msLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const expired = msLeft <= 0
+    const urgent = !expired && daysLeft < 2
+
+    const bg = expired || urgent ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)'
+    const border = expired || urgent ? 'rgba(239,68,68,0.25)' : 'rgba(245,158,11,0.25)'
+    const textColor = expired || urgent ? 'text-red-300' : 'text-amber-300'
+    const subColor = expired || urgent ? 'text-red-400/70' : 'text-amber-400/70'
+
+    return (
+      <div className="flex items-center justify-between rounded-xl px-4 py-3"
+           style={{ background: bg, border: `1px solid ${border}` }}>
+        <div className="flex items-center gap-3">
+          <AlertTriangle size={15} className={urgent || expired ? 'text-red-400' : 'text-amber-400'} />
+          <div>
+            <p className={`text-sm font-medium ${textColor}`}>
+              {expired ? 'Your free trial has ended' : `Free trial: ${daysLeft}d ${hoursLeft}h remaining`}
+            </p>
+            <p className={`text-xs ${subColor}`}>
+              {expired ? 'Choose a plan to keep using 1nexio' : 'Currently on Pro features — upgrade to keep access'}
+            </p>
+          </div>
+        </div>
+        <button onClick={() => navigate('/select-plan')}
+          className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all hover:opacity-90"
+          style={{ background: urgent || expired ? '#ef4444' : 'linear-gradient(to right, #f59e0b, #f97316)' }}>
+          Choose Plan →
+        </button>
+      </div>
+    )
+  }
+
+  // ── Usage bar for paid/builder plans ──
+  if (!plan_task_limit) return null   // unlimited (builder / max unlimited tasks)
+
+  const used = tasks_this_month
+  const pct = Math.min(100, Math.round((used / plan_task_limit) * 100))
+  const almostFull = pct >= 80
+  const barColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#14b8a6'
+
+  return (
+    <div className="flex items-center gap-4 rounded-xl px-4 py-3"
+         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-xs font-medium text-slate-400">
+            Tasks this month
+          </p>
+          <p className={`text-xs font-semibold ${almostFull ? 'text-amber-400' : 'text-slate-300'}`}>
+            {used} / {plan_task_limit}
+          </p>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-white/10">
+          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
+        </div>
+      </div>
+      {almostFull && (
+        <button onClick={() => navigate('/select-plan')}
+          className="whitespace-nowrap rounded-lg border border-amber-500/30 px-3 py-1.5 text-xs font-medium text-amber-400 hover:border-amber-400 transition-all">
+          Upgrade
+        </button>
+      )}
+    </div>
+  )
+}
 
 /* ── Onboarding checklist ──────────────────────────────────────────── */
 function OnboardingGuide({ empCount, hasProposals, companyId }: {
@@ -75,7 +150,9 @@ export default function Dashboard() {
   const [pendingProposals, setPending]  = useState<Proposal[]>([])
   const [statsData, setStats]           = useState<Stats>({
     employees: 0, active: 0, pending_proposals: 0, tasks_today: 0,
-    tasks_this_week: 0, tasks_completed_total: 0, hours_saved: 0, proposals_approved: 0,
+    tasks_this_week: 0, tasks_this_month: 0, tasks_completed_total: 0,
+    hours_saved: 0, proposals_approved: 0,
+    plan: 'trial', plan_task_limit: 300, plan_employee_limit: 10, trial_started_at: null,
   })
   const [loading, setLoading]   = useState(true)
   const [toast, setToast]       = useState('')
@@ -151,6 +228,9 @@ export default function Dashboard() {
         </div>
         <button onClick={refresh} className="btn-ghost text-xs"><RefreshCw size={14} />Refresh</button>
       </div>
+
+      {/* Plan / trial banner */}
+      <PlanBanner stats={statsData} navigate={navigate} />
 
       {/* Onboarding for new users */}
       {isNewUser && (
