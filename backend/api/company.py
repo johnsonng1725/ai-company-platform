@@ -116,16 +116,17 @@ def _to_out(company: models.Company, db: Session, plan: str = "trial") -> dict:
         models.Proposal.company_id == company.id,
         models.Proposal.status == "pending",
     ).count()
-    # Platform-key plans always have Anthropic available via the env key
+    # Platform-key plans use env vars — treat them as available if set on the server
     uses_platform_key = plan in PLATFORM_KEY_PLANS
     platform_anthropic = uses_platform_key and bool(os.getenv("ANTHROPIC_API_KEY"))
+    platform_openai = uses_platform_key and bool(os.getenv("OPENAI_API_KEY"))
     return {
         "id": company.id,
         "name": company.name,
         "description": company.description,
         "created_at": company.created_at,
         "has_anthropic_key": bool(company.anthropic_api_key) or platform_anthropic,
-        "has_openai_key": bool(company.openai_api_key),
+        "has_openai_key": bool(company.openai_api_key) or platform_openai,
         "employee_count": employee_count,
         "pending_proposals": pending_proposals,
     }
