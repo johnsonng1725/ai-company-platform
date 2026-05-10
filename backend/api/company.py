@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -5,6 +6,9 @@ from backend.database import get_db
 from backend import models, schemas
 from backend.core.auth import get_current_user
 from backend.core.crypto import encrypt_value
+
+# Plans that use the 1nexio platform key instead of a company-stored key
+PLATFORM_KEY_PLANS = {"pro", "max", "trial"}
 
 router = APIRouter(prefix="/api/companies", tags=["company"])
 
@@ -32,7 +36,7 @@ def list_companies(
     companies = db.query(models.Company).filter(
         models.Company.owner_id == current_user.id
     ).order_by(models.Company.created_at.asc()).all()
-    return [_to_out(c, db) for c in companies]
+    return [_to_out(c, db, current_user.plan) for c in companies]
 
 
 @router.post("", response_model=schemas.CompanyOut)
@@ -57,7 +61,7 @@ def create_company(
     ))
     db.commit()
     db.refresh(company)
-    return _to_out(company, db)
+    return _to_out(company, db, current_user.plan)
 
 
 @router.get("/{company_id}", response_model=schemas.CompanyOut)
@@ -67,7 +71,7 @@ def get_one_company(
     db: Session = Depends(get_db),
 ):
     company = get_company(current_user, db, company_id)
-    return _to_out(company, db)
+    return _to_out(company, db, current_user.plan)
 
 
 @router.put("/{company_id}", response_model=schemas.CompanyOut)
@@ -88,7 +92,7 @@ def update_company(
         company.openai_api_key = encrypt_value(data.openai_api_key)
     db.commit()
     db.refresh(company)
-    return _to_out(company, db)
+    return _to_out(company, db, current_user.plan)
 
 
 @router.delete("/{company_id}")
@@ -103,7 +107,7 @@ def delete_company(
     return {"ok": True}
 
 
-def _to_out(company: models.Company, db: Session) -> dict:
+def _to_out(company: models.Company, db: Session, plan: str = "trial") -> dict:
     employee_count = db.query(models.AIEmployee).filter(
         models.AIEmployee.company_id == company.id,
         models.AIEmployee.is_active == True,
@@ -112,12 +116,15 @@ def _to_out(company: models.Company, db: Session) -> dict:
         models.Proposal.company_id == company.id,
         models.Proposal.status == "pending",
     ).count()
+    # Platform-key plans always have Anthropic available via the env key
+    uses_platform_key = plan in PLATFORM_KEY_PLANS
+    platform_anthropic = uses_platform_key and bool(os.getenv("ANTHROPIC_API_KEY"))
     return {
         "id": company.id,
         "name": company.name,
         "description": company.description,
         "created_at": company.created_at,
-        "has_anthropic_key": bool(company.anthropic_api_key),
+        "has_anthropic_key": bool(company.anthropic_api_key) or platform_anthropic,
         "has_openai_key": bool(company.openai_api_key),
         "employee_count": employee_count,
         "pending_proposals": pending_proposals,
