@@ -1,24 +1,30 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Users, FileText, ArrowRight, Zap, Loader2, X, Building2 } from 'lucide-react'
+import { Plus, Users, ArrowRight, Zap, Loader2, X, Building2, Key, ChevronRight, Eye, EyeOff } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+
 import { companies as companiesApi } from '../lib/api'
 import type { Company } from '../lib/api'
 
 function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreated: (c: Company) => void }) {
+  const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
+  const [anthropicKey, setAnthropicKey] = useState('')
+  const [showKey, setShowKey] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [createdCompany, setCreatedCompany] = useState<Company | null>(null)
 
-  async function submit(e: React.FormEvent) {
+  async function submitStep1(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     setLoading(true)
     setError('')
     try {
       const c = await companiesApi.create({ name, description: desc })
-      onCreated(c)
+      setCreatedCompany(c)
+      setStep(2)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -26,52 +32,135 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
     }
   }
 
+  async function saveKeyAndEnter() {
+    if (!createdCompany) return
+    setLoading(true)
+    try {
+      if (anthropicKey.trim()) {
+        await companiesApi.update(createdCompany.id, { anthropic_api_key: anthropicKey.trim() })
+      }
+      onCreated(createdCompany)
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function skipAndEnter() {
+    if (createdCompany) onCreated(createdCompany)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.7)' }}>
       <div className="card w-full max-w-md animate-slide-up p-6">
+
+        {/* Header */}
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Create New Company</h2>
+          <div>
+            <h2 className="text-base font-semibold text-white">
+              {step === 1 ? 'Create New Company' : 'Set Up AI Access'}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">Step {step} of 2</p>
+          </div>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors">
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={submit} className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-slate-400">Company Name *</label>
-            <input
-              className="input"
-              placeholder="e.g. My E-commerce Store"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-              required
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-slate-400">Description</label>
-            <textarea
-              className="input resize-none"
-              rows={2}
-              placeholder="What does this company do?"
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-            />
-          </div>
+        {/* Step indicators */}
+        <div className="flex items-center gap-2 mb-6">
+          {[1, 2].map(s => (
+            <div key={s} className={`h-1 flex-1 rounded-full transition-all ${step >= s ? 'bg-accent' : 'bg-white/10'}`} />
+          ))}
+        </div>
 
-          {error && (
-            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>
-          )}
+        {/* ── Step 1: Company Info ── */}
+        {step === 1 && (
+          <form onSubmit={submitStep1} className="flex flex-col gap-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-400">Company Name *</label>
+              <input className="input" placeholder="e.g. My E-commerce Store"
+                value={name} onChange={(e) => setName(e.target.value)} autoFocus required />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-400">Description</label>
+              <textarea className="input resize-none" rows={2}
+                placeholder="What does this company do?"
+                value={desc} onChange={(e) => setDesc(e.target.value)} />
+            </div>
+            {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>}
+            <div className="flex justify-end gap-3 pt-1">
+              <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+              <button type="submit" disabled={loading || !name.trim()} className="btn-primary">
+                {loading ? <Loader2 size={14} className="animate-spin" /> : <ChevronRight size={14} />}
+                Next
+              </button>
+            </div>
+          </form>
+        )}
 
-          <div className="flex justify-end gap-3 pt-1">
-            <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
-            <button type="submit" disabled={loading || !name.trim()} className="btn-primary">
-              {loading && <Loader2 size={14} className="animate-spin" />}
-              Create Company
-            </button>
+        {/* ── Step 2: API Key Setup ── */}
+        {step === 2 && (
+          <div className="flex flex-col gap-4">
+
+            {/* Platform key option */}
+            <div className="rounded-xl p-4" style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.2)' }}>
+              <div className="flex items-start gap-3">
+                <Zap size={16} className="text-accent-light mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-white">Use 1nexio Platform Key</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Start right away — no API key needed. Uses our shared AI credits. Upgrade to Pro for higher limits.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
+              <span className="text-xs text-slate-500">or use your own key</span>
+              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
+            </div>
+
+            {/* Own API key input */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                <Key size={11} /> Anthropic API Key
+              </label>
+              <div className="relative">
+                <input
+                  className="input pr-10"
+                  type={showKey ? 'text' : 'password'}
+                  placeholder="sk-ant-..."
+                  value={anthropicKey}
+                  onChange={(e) => setAnthropicKey(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowKey(!showKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                  {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              <p className="mt-1.5 text-xs text-slate-600">
+                Get your key at{' '}
+                <a href="https://console.anthropic.com" target="_blank" rel="noreferrer"
+                   className="text-accent-light hover:underline">console.anthropic.com</a>
+              </p>
+            </div>
+
+            {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>}
+
+            <div className="flex justify-end gap-3 pt-1">
+              <button type="button" onClick={skipAndEnter} className="btn-ghost text-xs">
+                Skip for now
+              </button>
+              <button onClick={saveKeyAndEnter} disabled={loading} className="btn-primary">
+                {loading && <Loader2 size={14} className="animate-spin" />}
+                {anthropicKey.trim() ? 'Save & Enter' : 'Enter with Platform Key'}
+              </button>
+            </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   )
