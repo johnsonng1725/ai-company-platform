@@ -13,7 +13,9 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
   const [anthropicKey, setAnthropicKey] = useState('')
+  const [openaiKey, setOpenaiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
+  const [showOpenaiKey, setShowOpenaiKey] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [createdCompany, setCreatedCompany] = useState<Company | null>(null)
@@ -42,8 +44,11 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
     if (!createdCompany) return
     setLoading(true)
     try {
-      if (anthropicKey.trim()) {
-        await companiesApi.update(createdCompany.id, { anthropic_api_key: anthropicKey.trim() })
+      const updates: Record<string, string> = {}
+      if (anthropicKey.trim()) updates.anthropic_api_key = anthropicKey.trim()
+      if (openaiKey.trim()) updates.openai_api_key = openaiKey.trim()
+      if (Object.keys(updates).length > 0) {
+        await companiesApi.update(createdCompany.id, updates)
       }
       onCreated(createdCompany)
     } catch (e: any) {
@@ -113,7 +118,7 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
         {step === 2 && (
           <div className="flex flex-col gap-4">
 
-            {/* Own API key input — Builder plan: show prominently with no platform key option */}
+            {/* Anthropic API Key */}
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
                 <Key size={11} /> Anthropic API Key
@@ -132,17 +137,47 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
                   {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
-              <p className="mt-1.5 text-xs text-slate-600">
-                Get your key at{' '}
+              <p className="mt-1 text-xs text-slate-600">
                 <a href="https://console.anthropic.com" target="_blank" rel="noreferrer"
                    className="text-accent-light hover:underline">console.anthropic.com</a>
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
+              <span className="text-xs text-slate-600">optional</span>
+              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
+            </div>
+
+            {/* OpenAI API Key */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                <Key size={11} /> OpenAI API Key
+              </label>
+              <div className="relative">
+                <input
+                  className="input pr-10"
+                  type={showOpenaiKey ? 'text' : 'password'}
+                  placeholder="sk-..."
+                  value={openaiKey}
+                  onChange={(e) => setOpenaiKey(e.target.value)}
+                />
+                <button type="button" onClick={() => setShowOpenaiKey(!showOpenaiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                  {showOpenaiKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-slate-600">
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer"
+                   className="text-accent-light hover:underline">platform.openai.com/api-keys</a>
               </p>
             </div>
 
             {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>}
 
             <div className="flex justify-end gap-3 pt-1">
-              <button onClick={saveKeyAndEnter} disabled={loading || !anthropicKey.trim()} className="btn-primary">
+              <button onClick={saveKeyAndEnter} disabled={loading || (!anthropicKey.trim() && !openaiKey.trim())} className="btn-primary">
                 {loading && <Loader2 size={14} className="animate-spin" />}
                 Save & Enter
               </button>
