@@ -270,16 +270,16 @@ export default function Landing() {
       <section id="pricing" className="border-t border-white/5 bg-white/[0.015] py-24">
         <div className="mx-auto max-w-5xl px-6 text-center">
           <h2 className="text-3xl font-bold text-white mb-3">Simple, honest pricing</h2>
-          <p className="text-slate-400 mb-3">7-day free trial with full Pro features — no credit card needed.</p>
+          <p className="text-slate-400 mb-3">Max plan includes a 7-day free trial — no credit card needed.</p>
           <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-12"
-               style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.25)' }}>
-            <CheckCircle size={12} className="text-accent-light" />
-            <span className="text-xs font-medium text-accent-light">Trial includes Pro plan — 10 employees & 300 tasks/month</span>
+               style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}>
+            <CheckCircle size={12} className="text-amber-400" />
+            <span className="text-xs font-medium text-amber-300">Max trial: Pro limits for 7 days — 10 employees & 300 tasks</span>
           </div>
           <div className="grid gap-5 sm:grid-cols-3">
-            {/* Starter */}
+            {/* Builder */}
             <div className="card p-7 text-left">
-              <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Starter</p>
+              <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Builder</p>
               <p className="text-4xl font-bold text-white mb-0.5">RM59<span className="text-lg font-normal text-slate-400">/mo</span></p>
               <p className="text-sm text-slate-500 mb-6">Own key, no limits</p>
               <div className="flex flex-col gap-2.5 mb-8">
@@ -290,7 +290,7 @@ export default function Landing() {
                 ))}
               </div>
               <button onClick={handleStart} className="w-full rounded-xl border border-blue-500/30 py-2.5 text-sm font-medium text-blue-300 hover:border-blue-400 hover:text-blue-200 transition-all">
-                Start Free Trial
+                Get Started
               </button>
             </div>
             {/* Pro */}
@@ -308,7 +308,7 @@ export default function Landing() {
                 ))}
               </div>
               <button onClick={handleStart} className="w-full rounded-xl bg-accent py-2.5 text-sm font-medium text-white hover:bg-accent-light transition-all">
-                Start Free Trial
+                Get Started
               </button>
             </div>
             {/* Max */}
@@ -328,7 +328,7 @@ export default function Landing() {
               </div>
               <button onClick={handleStart} className="w-full rounded-xl py-2.5 text-sm font-medium text-white transition-all"
                       style={{ background: 'linear-gradient(to right, #f59e0b, #f97316)' }}>
-                Start Free Trial
+                Start Free Trial →
               </button>
             </div>
           </div>

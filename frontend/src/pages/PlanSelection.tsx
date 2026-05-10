@@ -4,8 +4,8 @@ import { auth } from '../lib/api'
 
 const PLANS = [
   {
-    id: 'starter',
-    name: 'Starter',
+    id: 'builder',
+    name: 'Builder',
     price: 'RM59',
     period: '/month',
     tagline: 'Own key, no limits',
@@ -13,11 +13,12 @@ const PLANS = [
     keyType: 'own',
     employees: 'Unlimited employees',
     tasks: 'Unlimited tasks',
-    icon: Star,
+    icon: Key,
     iconColor: 'text-blue-400',
     iconBg: 'rgba(59,130,246,0.12)',
     iconBorder: 'rgba(59,130,246,0.25)',
     badge: null,
+    trial: false,
     features: [
       'Unlimited AI employees',
       'Unlimited tasks',
@@ -25,7 +26,7 @@ const PLANS = [
       'Bring your own API key',
       'You pay Anthropic directly',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Started',
     ctaStyle: 'border border-blue-500/40 text-blue-300 hover:border-blue-400 hover:text-blue-200',
     popular: false,
   },
@@ -44,6 +45,7 @@ const PLANS = [
     iconBg: 'rgba(13,148,136,0.15)',
     iconBorder: 'rgba(13,148,136,0.3)',
     badge: 'Most Popular',
+    trial: false,
     features: [
       '10 AI employees',
       '300 tasks per month',
@@ -51,7 +53,7 @@ const PLANS = [
       '1nexio platform key included',
       'No API setup required',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Started',
     ctaStyle: 'bg-accent text-white hover:bg-accent-light',
     popular: true,
   },
@@ -60,7 +62,7 @@ const PLANS = [
     name: 'Max',
     price: 'RM399',
     period: '/month',
-    tagline: 'Unlimited power',
+    tagline: 'Best value',
     description: 'Maximum usage with our platform key. Built for power users.',
     keyType: 'platform',
     employees: 'Unlimited employees',
@@ -69,7 +71,8 @@ const PLANS = [
     iconColor: 'text-amber-400',
     iconBg: 'rgba(245,158,11,0.12)',
     iconBorder: 'rgba(245,158,11,0.25)',
-    badge: 'Best Value',
+    badge: 'Free Trial',
+    trial: true,
     features: [
       'Unlimited AI employees',
       '1,000 tasks per month',
@@ -89,8 +92,9 @@ export default function PlanSelection() {
 
   async function choosePlan(planId: string) {
     localStorage.setItem('plan', planId)
-    // Start on trial — persist to backend (best-effort)
-    try { await auth.updatePlan('trial') } catch {}
+    // Max gets a 7-day trial; others go straight in (payment flow TBD)
+    const backendPlan = planId === 'max' ? 'trial' : planId === 'builder' ? 'starter' : planId
+    try { await auth.updatePlan(backendPlan) } catch {}
     navigate('/companies')
   }
 
@@ -107,18 +111,18 @@ export default function PlanSelection() {
             <Zap size={22} className="text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Start Your Free Trial</h1>
+            <h1 className="text-2xl font-bold text-white">Choose Your Plan</h1>
             <p className="mt-1.5 text-sm text-slate-500">
-              7 days free with full Pro features — no credit card needed.
+              Max plan includes a 7-day free trial — no credit card needed.
             </p>
           </div>
 
-          {/* Trial badge */}
+          {/* Trial badge — Max only */}
           <div className="flex items-center gap-2 rounded-full px-4 py-2"
-               style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.25)' }}>
-            <Gift size={13} className="text-accent-light" />
-            <span className="text-xs font-medium text-accent-light">
-              Your trial includes Pro plan — 10 employees & 300 tasks
+               style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}>
+            <Gift size={13} className="text-amber-400" />
+            <span className="text-xs font-medium text-amber-300">
+              Max free trial includes Pro limits — 10 employees & 300 tasks for 7 days
             </span>
           </div>
         </div>
@@ -132,7 +136,9 @@ export default function PlanSelection() {
                 {/* Badge */}
                 {plan.badge && (
                   <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2">
-                    <span className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold text-white ${plan.id === 'pro' ? 'bg-accent' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`}>
+                    <span className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold text-white ${
+                      plan.id === 'pro' ? 'bg-accent' : 'bg-gradient-to-r from-amber-500 to-orange-500'
+                    }`}>
                       {plan.badge}
                     </span>
                   </div>
@@ -140,8 +146,20 @@ export default function PlanSelection() {
 
                 <button
                   onClick={() => choosePlan(plan.id)}
-                  className={`card group flex flex-col gap-4 p-5 text-left transition-all ${plan.popular ? 'hover:border-accent/50 hover:bg-accent/5' : 'hover:border-white/15 hover:bg-white/3'}`}
-                  style={plan.popular ? { borderColor: 'rgba(13,148,136,0.3)' } : {}}
+                  className={`card group flex flex-col gap-4 p-5 text-left transition-all ${
+                    plan.popular
+                      ? 'hover:border-accent/50 hover:bg-accent/5'
+                      : plan.id === 'max'
+                      ? 'hover:border-amber-500/30 hover:bg-amber-500/5'
+                      : 'hover:border-white/15 hover:bg-white/3'
+                  }`}
+                  style={
+                    plan.popular
+                      ? { borderColor: 'rgba(13,148,136,0.3)' }
+                      : plan.id === 'max'
+                      ? { borderColor: 'rgba(245,158,11,0.2)' }
+                      : {}
+                  }
                 >
                   {/* Icon + key type */}
                   <div className="flex items-center justify-between">
@@ -150,7 +168,11 @@ export default function PlanSelection() {
                       <Icon size={16} className={plan.iconColor} />
                     </div>
                     <span className="text-xs font-medium"
-                          style={{ color: plan.id === 'pro' ? '#14b8a6' : plan.id === 'max' ? '#f59e0b' : '#60a5fa' }}>
+                          style={{
+                            color: plan.id === 'pro' ? '#14b8a6'
+                                 : plan.id === 'max' ? '#f59e0b'
+                                 : '#60a5fa'
+                          }}>
                       {plan.keyType === 'platform' ? '🔑 Platform key' : '🔧 Own key'}
                     </span>
                   </div>
@@ -169,13 +191,20 @@ export default function PlanSelection() {
                   <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
                     <p className="text-xs font-medium text-slate-300">{plan.employees}</p>
                     <p className="mt-0.5 text-xs text-slate-500">{plan.tasks}</p>
+                    {plan.trial && (
+                      <p className="mt-1 text-xs text-amber-500/80">Trial: 10 employees · 300 tasks</p>
+                    )}
                   </div>
 
                   {/* Features */}
                   <ul className="flex flex-col gap-1.5">
                     {plan.features.map(f => (
                       <li key={f} className="flex items-start gap-2 text-xs text-slate-400">
-                        <CheckCircle size={11} className={`shrink-0 mt-0.5 ${plan.id === 'pro' ? 'text-accent-light' : plan.id === 'max' ? 'text-amber-400' : 'text-blue-400'}`} />
+                        <CheckCircle size={11} className={`shrink-0 mt-0.5 ${
+                          plan.id === 'pro' ? 'text-accent-light'
+                          : plan.id === 'max' ? 'text-amber-400'
+                          : 'text-blue-400'
+                        }`} />
                         {f}
                       </li>
                     ))}
@@ -185,6 +214,11 @@ export default function PlanSelection() {
                   <div className={`mt-auto rounded-xl py-2 text-center text-sm font-medium transition-all ${plan.ctaStyle}`}>
                     {plan.cta}
                   </div>
+
+                  {/* Payment note for non-trial plans */}
+                  {!plan.trial && (
+                    <p className="text-center text-xs text-slate-600 -mt-2">Payment required to activate</p>
+                  )}
                 </button>
               </div>
             )
@@ -192,7 +226,7 @@ export default function PlanSelection() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-600">
-          Choose the plan you want after your trial · Upgrade or cancel anytime · No credit card required to start
+          Upgrade or cancel anytime · No credit card required for Max trial
         </p>
       </div>
     </div>
