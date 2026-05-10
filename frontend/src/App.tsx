@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import AuthCallback from './pages/AuthCallback'
+import PlanSelection from './pages/PlanSelection'
 import Companies from './pages/Companies'
 import Dashboard from './pages/Dashboard'
 import Employees from './pages/Employees'
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/" element={IS_DEV ? <Navigate to="/companies" replace /> : <Landing />} />
         <Route path="/login" element={IS_DEV ? <Navigate to="/companies" replace /> : <Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/select-plan" element={<PlanSelection />} />
 
         {/* Company selector — landing page after login */}
         <Route

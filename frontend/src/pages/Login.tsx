@@ -55,7 +55,7 @@ export default function Login() {
         ? await auth.login(email, password)
         : await auth.register(email, password, name)
       localStorage.setItem('token', res.access_token)
-      navigate('/companies')
+      navigate(mode === 'register' ? '/select-plan' : '/companies')
     } catch (err: any) {
       setError(err.message || 'Something went wrong')
     } finally {

@@ -7,6 +7,8 @@ import { companies as companiesApi } from '../lib/api'
 import type { Company } from '../lib/api'
 
 function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreated: (c: Company) => void }) {
+  const userPlan = localStorage.getItem('plan') || 'free'
+  const needsApiKey = userPlan === 'free'
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
@@ -24,7 +26,11 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
     try {
       const c = await companiesApi.create({ name, description: desc })
       setCreatedCompany(c)
-      setStep(2)
+      if (needsApiKey) {
+        setStep(2)
+      } else {
+        onCreated(c)
+      }
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -62,19 +68,21 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
             <h2 className="text-base font-semibold text-white">
               {step === 1 ? 'Create New Company' : 'Set Up AI Access'}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">Step {step} of 2</p>
+            {needsApiKey && <p className="text-xs text-slate-500 mt-0.5">Step {step} of 2</p>}
           </div>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors">
             <X size={18} />
           </button>
         </div>
 
-        {/* Step indicators */}
-        <div className="flex items-center gap-2 mb-6">
-          {[1, 2].map(s => (
-            <div key={s} className={`h-1 flex-1 rounded-full transition-all ${step >= s ? 'bg-accent' : 'bg-white/10'}`} />
-          ))}
-        </div>
+        {/* Step indicators — only show for free plan */}
+        {needsApiKey && (
+          <div className="flex items-center gap-2 mb-6">
+            {[1, 2].map(s => (
+              <div key={s} className={`h-1 flex-1 rounded-full transition-all ${step >= s ? 'bg-accent' : 'bg-white/10'}`} />
+            ))}
+          </div>
+        )}
 
         {/* ── Step 1: Company Info ── */}
         {step === 1 && (
