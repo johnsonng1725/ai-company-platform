@@ -92,8 +92,9 @@ export default function PlanSelection() {
 
   async function choosePlan(planId: string) {
     localStorage.setItem('plan', planId)
-    // Max gets a 7-day trial; others go straight in (payment flow TBD)
-    const backendPlan = planId === 'max' ? 'trial' : planId === 'builder' ? 'starter' : planId
+    // Backend only accepts 'trial' or 'starter' (paid plans need Stripe)
+    // Builder → 'starter', everything else → 'trial' until payment is set up
+    const backendPlan = planId === 'builder' ? 'starter' : 'trial'
     try { await auth.updatePlan(backendPlan) } catch {}
     navigate('/companies')
   }

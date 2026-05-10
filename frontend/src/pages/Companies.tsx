@@ -1,20 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Users, ArrowRight, Zap, Loader2, X, Building2, Key, ChevronRight, Eye, EyeOff } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
-import { companies as companiesApi } from '../lib/api'
+import { companies as companiesApi, auth as authApi } from '../lib/api'
 import type { Company } from '../lib/api'
 
 function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreated: (c: Company) => void }) {
-  const userPlan = localStorage.getItem('plan') || 'free'
+  // Read plan from the API (authoritative), fall back to localStorage only as initial guess
+  const [userPlan, setUserPlan] = useState(localStorage.getItem('plan') || 'trial')
   const needsApiKey = userPlan === 'builder' || userPlan === 'starter'
+
+  useEffect(() => {
+    authApi.me().then(u => {
+      // 'starter' in DB = Builder plan UI
+      setUserPlan(u.plan === 'starter' ? 'builder' : u.plan)
+    }).catch(() => {})
+  }, [])
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
   type KeyEntry = { id: number; provider: 'anthropic' | 'openai'; key: string; show: boolean }
   const [apiKeys, setApiKeys] = useState<KeyEntry[]>([{ id: 0, provider: 'anthropic', key: '', show: false }])
-  const nextId = { current: 1 }
+  const nextId = useRef(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [createdCompany, setCreatedCompany] = useState<Company | null>(null)

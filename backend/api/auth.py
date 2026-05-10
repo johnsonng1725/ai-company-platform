@@ -7,7 +7,8 @@ from backend.core.auth import verify_password, hash_password, create_access_toke
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-VALID_PLANS = {"trial", "starter", "pro", "max"}
+# Plans users can set themselves — paid plans (pro/max) require Stripe webhook
+SELF_SETTABLE_PLANS = {"trial", "starter"}
 
 
 @router.post("/register", response_model=schemas.Token)
@@ -50,8 +51,11 @@ def update_plan(
     db: Session = Depends(get_db),
 ):
     plan = (body.get("plan") or "trial").strip().lower()
-    if plan not in VALID_PLANS:
-        raise HTTPException(status_code=400, detail=f"Invalid plan. Must be one of: {', '.join(VALID_PLANS)}")
+    if plan not in SELF_SETTABLE_PLANS:
+        raise HTTPException(
+            status_code=403,
+            detail="Upgrading to a paid plan requires payment. Please complete checkout first.",
+        )
     current_user.plan = plan
     db.commit()
     db.refresh(current_user)
