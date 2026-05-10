@@ -10,7 +10,8 @@ from backend import models
 # None means unlimited
 
 PLAN_LIMITS = {
-    "free":    {"max_employees": 3,    "monthly_tasks": 30},
+    # trial = full Pro features for 7 days, then must upgrade
+    "trial":   {"max_employees": 10,   "monthly_tasks": 300},
     "starter": {"max_employees": None, "monthly_tasks": None},
     "pro":     {"max_employees": 10,   "monthly_tasks": 300},
     "max":     {"max_employees": None, "monthly_tasks": 1000},
@@ -18,7 +19,7 @@ PLAN_LIMITS = {
 
 
 def get_limits(plan: str) -> dict:
-    return PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    return PLAN_LIMITS.get(plan, PLAN_LIMITS["trial"])
 
 
 def enforce_employee_limit(user: models.User, company: models.Company, db: Session):

@@ -7,7 +7,7 @@ from backend.core.auth import verify_password, hash_password, create_access_toke
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-VALID_PLANS = {"free", "starter", "pro", "max"}
+VALID_PLANS = {"trial", "starter", "pro", "max"}
 
 
 @router.post("/register", response_model=schemas.Token)
@@ -49,7 +49,7 @@ def update_plan(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    plan = (body.get("plan") or "free").strip().lower()
+    plan = (body.get("plan") or "trial").strip().lower()
     if plan not in VALID_PLANS:
         raise HTTPException(status_code=400, detail=f"Invalid plan. Must be one of: {', '.join(VALID_PLANS)}")
     current_user.plan = plan

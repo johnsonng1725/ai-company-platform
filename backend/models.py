@@ -17,7 +17,7 @@ class User(Base):
     google_id = Column(String, nullable=True, unique=True, index=True)
     facebook_id = Column(String, nullable=True, unique=True, index=True)
     is_active = Column(Boolean, default=True)
-    plan = Column(String, default="free")   # free | starter | pro | max
+    plan = Column(String, default="trial")  # trial | starter | pro | max
     created_at = Column(DateTime, default=datetime.utcnow)
 
     companies = relationship("Company", back_populates="owner", cascade="all, delete")

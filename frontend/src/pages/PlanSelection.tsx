@@ -1,40 +1,15 @@
 import { useNavigate } from 'react-router-dom'
-import { Zap, Key, CheckCircle, Crown, Star } from 'lucide-react'
+import { Zap, Key, CheckCircle, Crown, Star, Gift } from 'lucide-react'
 import { auth } from '../lib/api'
 
 const PLANS = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: 'RM0',
-    period: '/month',
-    tagline: 'Try it out',
-    description: 'Get started with your own Anthropic API key.',
-    keyType: 'own',
-    employees: '3 AI employees',
-    tasks: '30 tasks / month',
-    icon: Key,
-    iconColor: 'text-slate-400',
-    iconBg: 'rgba(255,255,255,0.06)',
-    iconBorder: 'rgba(255,255,255,0.1)',
-    badge: null,
-    features: [
-      '3 AI employees',
-      '30 tasks per month',
-      'All core features',
-      'Bring your own API key',
-    ],
-    cta: 'Get Started Free',
-    ctaStyle: 'border border-white/10 text-slate-300 hover:border-white/20 hover:text-white',
-    popular: false,
-  },
   {
     id: 'starter',
     name: 'Starter',
     price: 'RM59',
     period: '/month',
     tagline: 'Own key, no limits',
-    description: 'Unlock everything. Bring your own key and pay Anthropic directly.',
+    description: 'Unlimited everything. Bring your own Anthropic key and pay them directly.',
     keyType: 'own',
     employees: 'Unlimited employees',
     tasks: 'Unlimited tasks',
@@ -50,7 +25,7 @@ const PLANS = [
       'Bring your own API key',
       'You pay Anthropic directly',
     ],
-    cta: 'Choose Starter',
+    cta: 'Start Free Trial',
     ctaStyle: 'border border-blue-500/40 text-blue-300 hover:border-blue-400 hover:text-blue-200',
     popular: false,
   },
@@ -76,17 +51,17 @@ const PLANS = [
       '1nexio platform key included',
       'No API setup required',
     ],
-    cta: 'Choose Pro',
+    cta: 'Start Free Trial',
     ctaStyle: 'bg-accent text-white hover:bg-accent-light',
     popular: true,
   },
   {
     id: 'max',
     name: 'Max',
-    price: 'RM299',
+    price: 'RM399',
     period: '/month',
     tagline: 'Unlimited power',
-    description: 'Maximum usage with our platform key. No limits.',
+    description: 'Maximum usage with our platform key. Built for power users.',
     keyType: 'platform',
     employees: 'Unlimited employees',
     tasks: '1,000 tasks / month',
@@ -103,7 +78,7 @@ const PLANS = [
       'Priority processing',
       'Early access to new features',
     ],
-    cta: 'Choose Max',
+    cta: 'Start Free Trial',
     ctaStyle: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400',
     popular: false,
   },
@@ -114,8 +89,8 @@ export default function PlanSelection() {
 
   async function choosePlan(planId: string) {
     localStorage.setItem('plan', planId)
-    // Persist plan to backend (best-effort — don't block if it fails)
-    try { await auth.updatePlan(planId) } catch {}
+    // Start on trial — persist to backend (best-effort)
+    try { await auth.updatePlan('trial') } catch {}
     navigate('/companies')
   }
 
@@ -125,20 +100,31 @@ export default function PlanSelection() {
         <div className="absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl" />
       </div>
 
-      <div className="relative w-full max-w-5xl animate-slide-up">
+      <div className="relative w-full max-w-4xl animate-slide-up">
         {/* Header */}
         <div className="mb-10 flex flex-col items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent shadow-lg shadow-accent/30">
             <Zap size={22} className="text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Choose Your Plan</h1>
-            <p className="mt-1.5 text-sm text-slate-500">Start free or unlock more power. Upgrade anytime.</p>
+            <h1 className="text-2xl font-bold text-white">Start Your Free Trial</h1>
+            <p className="mt-1.5 text-sm text-slate-500">
+              7 days free with full Pro features — no credit card needed.
+            </p>
+          </div>
+
+          {/* Trial badge */}
+          <div className="flex items-center gap-2 rounded-full px-4 py-2"
+               style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.25)' }}>
+            <Gift size={13} className="text-accent-light" />
+            <span className="text-xs font-medium text-accent-light">
+              Your trial includes Pro plan — 10 employees & 300 tasks
+            </span>
           </div>
         </div>
 
         {/* Plan Grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {PLANS.map((plan) => {
             const Icon = plan.icon
             return (
@@ -157,14 +143,14 @@ export default function PlanSelection() {
                   className={`card group flex flex-col gap-4 p-5 text-left transition-all ${plan.popular ? 'hover:border-accent/50 hover:bg-accent/5' : 'hover:border-white/15 hover:bg-white/3'}`}
                   style={plan.popular ? { borderColor: 'rgba(13,148,136,0.3)' } : {}}
                 >
-                  {/* Icon + Tag */}
+                  {/* Icon + key type */}
                   <div className="flex items-center justify-between">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl"
                          style={{ background: plan.iconBg, border: `1px solid ${plan.iconBorder}` }}>
                       <Icon size={16} className={plan.iconColor} />
                     </div>
                     <span className="text-xs font-medium"
-                          style={{ color: plan.id === 'pro' ? '#14b8a6' : plan.id === 'max' ? '#f59e0b' : plan.id === 'starter' ? '#60a5fa' : '#71717a' }}>
+                          style={{ color: plan.id === 'pro' ? '#14b8a6' : plan.id === 'max' ? '#f59e0b' : '#60a5fa' }}>
                       {plan.keyType === 'platform' ? '🔑 Platform key' : '🔧 Own key'}
                     </span>
                   </div>
@@ -189,7 +175,7 @@ export default function PlanSelection() {
                   <ul className="flex flex-col gap-1.5">
                     {plan.features.map(f => (
                       <li key={f} className="flex items-start gap-2 text-xs text-slate-400">
-                        <CheckCircle size={11} className={`shrink-0 mt-0.5 ${plan.id === 'pro' ? 'text-accent-light' : plan.id === 'max' ? 'text-amber-400' : plan.id === 'starter' ? 'text-blue-400' : 'text-slate-500'}`} />
+                        <CheckCircle size={11} className={`shrink-0 mt-0.5 ${plan.id === 'pro' ? 'text-accent-light' : plan.id === 'max' ? 'text-amber-400' : 'text-blue-400'}`} />
                         {f}
                       </li>
                     ))}
@@ -206,7 +192,7 @@ export default function PlanSelection() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-600">
-          You can change your plan anytime in Settings · All plans include a 7-day free trial
+          Choose the plan you want after your trial · Upgrade or cancel anytime · No credit card required to start
         </p>
       </div>
     </div>

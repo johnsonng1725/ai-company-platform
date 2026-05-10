@@ -8,7 +8,7 @@ import type { Company } from '../lib/api'
 
 function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreated: (c: Company) => void }) {
   const userPlan = localStorage.getItem('plan') || 'free'
-  const needsApiKey = userPlan === 'free' || userPlan === 'starter'
+  const needsApiKey = userPlan === 'starter'
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')

@@ -58,4 +58,4 @@ def _run_migrations():
             conn.execute(text("ALTER TABLE tasks ADD COLUMN steps JSON DEFAULT '[]'"))
         # Add plan column to users if missing
         if "plan" not in user_cols:
-            conn.execute(text("ALTER TABLE users ADD COLUMN plan VARCHAR DEFAULT 'free'"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN plan VARCHAR DEFAULT 'trial'"))
