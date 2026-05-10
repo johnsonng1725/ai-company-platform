@@ -12,10 +12,9 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
-  const [anthropicKey, setAnthropicKey] = useState('')
-  const [openaiKey, setOpenaiKey] = useState('')
-  const [showKey, setShowKey] = useState(false)
-  const [showOpenaiKey, setShowOpenaiKey] = useState(false)
+  type KeyEntry = { id: number; provider: 'anthropic' | 'openai'; key: string; show: boolean }
+  const [apiKeys, setApiKeys] = useState<KeyEntry[]>([{ id: 0, provider: 'anthropic', key: '', show: false }])
+  const nextId = { current: 1 }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [createdCompany, setCreatedCompany] = useState<Company | null>(null)
@@ -40,13 +39,30 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
     }
   }
 
+  function addKeyEntry() {
+    const usedProviders = apiKeys.map(k => k.provider)
+    const nextProvider = usedProviders.includes('anthropic') && !usedProviders.includes('openai')
+      ? 'openai' : 'anthropic'
+    setApiKeys(prev => [...prev, { id: nextId.current++, provider: nextProvider, key: '', show: false }])
+  }
+  function removeKeyEntry(id: number) {
+    setApiKeys(prev => prev.filter(k => k.id !== id))
+  }
+  function updateKeyEntry(id: number, patch: Partial<KeyEntry>) {
+    setApiKeys(prev => prev.map(k => k.id === id ? { ...k, ...patch } : k))
+  }
+
   async function saveKeyAndEnter() {
     if (!createdCompany) return
     setLoading(true)
     try {
       const updates: Record<string, string> = {}
-      if (anthropicKey.trim()) updates.anthropic_api_key = anthropicKey.trim()
-      if (openaiKey.trim()) updates.openai_api_key = openaiKey.trim()
+      for (const entry of apiKeys) {
+        if (entry.key.trim()) {
+          if (entry.provider === 'anthropic') updates.anthropic_api_key = entry.key.trim()
+          else updates.openai_api_key = entry.key.trim()
+        }
+      }
       if (Object.keys(updates).length > 0) {
         await companiesApi.update(createdCompany.id, updates)
       }
@@ -56,10 +72,6 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
     } finally {
       setLoading(false)
     }
-  }
-
-  function skipAndEnter() {
-    if (createdCompany) onCreated(createdCompany)
   }
 
   return (
@@ -117,67 +129,69 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
         {/* ── Step 2: API Key Setup ── */}
         {step === 2 && (
           <div className="flex flex-col gap-4">
+            <p className="text-xs text-slate-500">Add at least one API key. AI employees will use the provider you choose when creating them.</p>
 
-            {/* Anthropic API Key */}
-            <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                <Key size={11} /> Anthropic API Key
-              </label>
-              <div className="relative">
-                <input
-                  className="input pr-10"
-                  type={showKey ? 'text' : 'password'}
-                  placeholder="sk-ant-..."
-                  value={anthropicKey}
-                  onChange={(e) => setAnthropicKey(e.target.value)}
-                  autoFocus
-                />
-                <button type="button" onClick={() => setShowKey(!showKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
-                  {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-              <p className="mt-1 text-xs text-slate-600">
-                <a href="https://console.anthropic.com" target="_blank" rel="noreferrer"
-                   className="text-accent-light hover:underline">console.anthropic.com</a>
-              </p>
+            {/* Dynamic key entries */}
+            <div className="flex flex-col gap-3">
+              {apiKeys.map((entry, idx) => (
+                <div key={entry.id} className="flex flex-col gap-1.5 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="flex items-center justify-between">
+                    {/* Provider selector */}
+                    <div className="flex gap-1">
+                      {(['anthropic', 'openai'] as const).map(p => (
+                        <button key={p} type="button"
+                          onClick={() => updateKeyEntry(entry.id, { provider: p })}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${entry.provider === p ? 'bg-accent text-white' : 'text-slate-500 hover:text-slate-300'}`}>
+                          {p === 'anthropic' ? '🔶 Claude' : '🟢 OpenAI'}
+                        </button>
+                      ))}
+                    </div>
+                    {apiKeys.length > 1 && (
+                      <button type="button" onClick={() => removeKeyEntry(entry.id)} className="text-slate-600 hover:text-slate-400 transition-colors">
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      className="input pr-10"
+                      type={entry.show ? 'text' : 'password'}
+                      placeholder={entry.provider === 'anthropic' ? 'sk-ant-...' : 'sk-...'}
+                      value={entry.key}
+                      onChange={(e) => updateKeyEntry(entry.id, { key: e.target.value })}
+                      autoFocus={idx === 0}
+                    />
+                    <button type="button" onClick={() => updateKeyEntry(entry.id, { show: !entry.show })}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                      {entry.show ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    {entry.provider === 'anthropic'
+                      ? <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" className="text-accent-light hover:underline">console.anthropic.com</a>
+                      : <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-accent-light hover:underline">platform.openai.com/api-keys</a>
+                    }
+                  </p>
+                </div>
+              ))}
             </div>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
-              <span className="text-xs text-slate-600">optional</span>
-              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
-            </div>
+            {/* Add another key — only if both providers not yet added */}
+            {apiKeys.length < 2 && (
+              <button type="button" onClick={addKeyEntry}
+                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors">
+                <Plus size={13} /> Add another API key
+              </button>
+            )}
 
-            {/* OpenAI API Key */}
-            <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                <Key size={11} /> OpenAI API Key
-              </label>
-              <div className="relative">
-                <input
-                  className="input pr-10"
-                  type={showOpenaiKey ? 'text' : 'password'}
-                  placeholder="sk-..."
-                  value={openaiKey}
-                  onChange={(e) => setOpenaiKey(e.target.value)}
-                />
-                <button type="button" onClick={() => setShowOpenaiKey(!showOpenaiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
-                  {showOpenaiKey ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-              <p className="mt-1 text-xs text-slate-600">
-                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer"
-                   className="text-accent-light hover:underline">platform.openai.com/api-keys</a>
-              </p>
-            </div>
+            <p className="text-xs text-slate-600">You can add or change keys later in <span className="text-slate-400">Settings</span>.</p>
 
             {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 border border-red-500/20">{error}</p>}
 
             <div className="flex justify-end gap-3 pt-1">
-              <button onClick={saveKeyAndEnter} disabled={loading || (!anthropicKey.trim() && !openaiKey.trim())} className="btn-primary">
+              <button onClick={saveKeyAndEnter}
+                disabled={loading || !apiKeys.some(k => k.key.trim())}
+                className="btn-primary">
                 {loading && <Loader2 size={14} className="animate-spin" />}
                 Save & Enter
               </button>
