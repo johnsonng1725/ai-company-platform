@@ -113,25 +113,7 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
         {step === 2 && (
           <div className="flex flex-col gap-4">
 
-            {/* Platform key option */}
-            <div className="rounded-xl p-4" style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.2)' }}>
-              <div className="flex items-start gap-3">
-                <Zap size={16} className="text-accent-light mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-white">Use 1nexio Platform Key</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Start right away — no API key needed. Uses our shared AI credits. Upgrade to Pro for higher limits.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
-              <span className="text-xs text-slate-500">or use your own key</span>
-              <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
-            </div>
-
-            {/* Own API key input */}
+            {/* Own API key input — Builder plan: show prominently with no platform key option */}
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
                 <Key size={11} /> Anthropic API Key
@@ -143,6 +125,7 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
                   placeholder="sk-ant-..."
                   value={anthropicKey}
                   onChange={(e) => setAnthropicKey(e.target.value)}
+                  autoFocus
                 />
                 <button type="button" onClick={() => setShowKey(!showKey)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
@@ -164,7 +147,7 @@ function NewCompanyModal({ onClose, onCreated }: { onClose: () => void; onCreate
               </button>
               <button onClick={saveKeyAndEnter} disabled={loading} className="btn-primary">
                 {loading && <Loader2 size={14} className="animate-spin" />}
-                {anthropicKey.trim() ? 'Save & Enter' : 'Enter with Platform Key'}
+                {anthropicKey.trim() ? 'Save & Enter' : 'Enter without key'}
               </button>
             </div>
           </div>
