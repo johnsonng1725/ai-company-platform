@@ -6,6 +6,7 @@ from backend.database import get_db
 from backend import models
 from backend.core.auth import get_current_user
 from backend.api.company import get_company
+from backend.core.plans import enforce_task_limit
 
 router = APIRouter(prefix="/api/employees", tags=["tasks"])
 
@@ -39,7 +40,7 @@ def send_message(
     db: Session = Depends(get_db),
 ):
     """CEO sends a message/instruction to an AI employee → queues as a task."""
-    get_company(current_user, db, company_id)
+    company = get_company(current_user, db, company_id)
     emp = _get_emp(employee_id, company_id, db)
 
     message = (body.get("message") or "").strip()
@@ -48,6 +49,8 @@ def send_message(
 
     if emp.status == "working":
         raise HTTPException(status_code=400, detail=f"{emp.name} is currently working. Please wait.")
+
+    enforce_task_limit(current_user, company, db)
 
     # Create the task
     task = models.Task(

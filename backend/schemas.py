@@ -20,6 +20,7 @@ class UserOut(BaseModel):
     id: int
     email: str
     full_name: str
+    plan: str = "free"
     created_at: datetime
 
     class Config:

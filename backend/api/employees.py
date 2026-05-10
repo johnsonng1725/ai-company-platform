@@ -6,6 +6,7 @@ from backend.database import get_db
 from backend import models, schemas
 from backend.core.auth import get_current_user
 from backend.api.company import get_company
+from backend.core.plans import enforce_employee_limit, enforce_task_limit
 
 router = APIRouter(prefix="/api/employees", tags=["employees"])
 
@@ -28,6 +29,7 @@ def create_employee(
     db: Session = Depends(get_db),
 ):
     company = get_company(current_user, db, company_id)
+    enforce_employee_limit(current_user, company, db)
     emp = models.AIEmployee(
         company_id=company.id,
         name=data.name,
@@ -104,6 +106,9 @@ def trigger_employee(
     emp = _get_emp(employee_id, company_id, current_user, db)
     if emp.status == "working":
         raise HTTPException(status_code=400, detail="Employee is already working")
+
+    company = get_company(current_user, db, company_id)
+    enforce_task_limit(current_user, company, db)
 
     emp.status = "working"
     emp.current_task = "Starting work cycle..."

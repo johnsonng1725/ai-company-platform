@@ -40,6 +40,8 @@ export const auth = {
       method: 'POST', body: JSON.stringify({ email, password }),
     }),
   me: () => request<User>('/auth/me'),
+  updatePlan: (plan: string) =>
+    request<User>('/auth/plan', { method: 'PUT', body: JSON.stringify({ plan }) }),
 }
 
 // ── Companies ─────────────────────────────────────────────────────────────────
