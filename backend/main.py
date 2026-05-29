@@ -3,7 +3,7 @@ import logging
 import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect, Query as WsQuery
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -194,6 +194,45 @@ def dev_auto_login(db: Session = Depends(get_db)):
     return {"token": token, "company_id": company.id}
 
 
+
+
+@app.websocket("/ws/{company_id}")
+async def ws_company(
+    websocket: WebSocket,
+    company_id: int,
+    token: str = WsQuery(...),
+):
+    """Real-time updates for a company — task steps, employee status, activity logs."""
+    from backend.ws import manager, watch_company
+    from backend.core.auth import get_current_user
+    from jose import JWTError, jwt
+    from backend.core.config import settings
+
+    # Authenticate via token query param (WebSocket can't send Authorization header)
+    db = next(get_db())
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise ValueError("bad token")
+        user = db.query(models.User).filter(models.User.id == int(user_id)).first()
+        if not user:
+            raise ValueError("user not found")
+        get_company(user, db, company_id)
+    except Exception:
+        await websocket.close(code=4001)
+        db.close()
+        return
+    finally:
+        db.close()
+
+    await manager.connect(websocket, company_id)
+    try:
+        await watch_company(websocket, company_id)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        manager.disconnect(websocket, company_id)
 
 
 # Serve React frontend — must be LAST

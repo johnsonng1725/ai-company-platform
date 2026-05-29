@@ -11,6 +11,8 @@ import {
 import { formatDistanceToNow, format, addDays, addMonths } from 'date-fns'
 import { employees as employeesApi } from '../lib/api'
 import type { Employee } from '../lib/api'
+import { useTaskSocket } from '../lib/useTaskSocket'
+import type { TaskPatch, EmployeePatch } from '../lib/useTaskSocket'
 
 const BASE = '/api'
 function getToken() { return localStorage.getItem('token') }
@@ -620,7 +622,6 @@ export default function EmployeeChat() {
   const [copyToast, setCopyToast]         = useState(false)
   const bottomRef                         = useRef<HTMLDivElement>(null)
   const textareaRef                       = useRef<HTMLTextAreaElement>(null)
-  const pollingRef                        = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const loadTasks = useCallback(async () => {
     const data = await api<Task[]>(`/employees/${eid}/tasks?company_id=${cid}`)
@@ -638,21 +639,18 @@ export default function EmployeeChat() {
     init()
   }, [cid, eid, loadTasks])
 
-  useEffect(() => {
-    const hasPending = tasks.some(t => t.status === 'pending' || t.status === 'running')
-    if (hasPending && !pollingRef.current) {
-      pollingRef.current = setInterval(async () => {
-        const updated = await loadTasks()
-        if (!updated.some(t => t.status === 'pending' || t.status === 'running') && pollingRef.current) {
-          clearInterval(pollingRef.current); pollingRef.current = null
-          employeesApi.list(cid).then(emps => setEmployee(emps.find(e => e.id === eid) ?? null))
-        }
-      }, 3000)
-    }
-    return () => {}
-  }, [tasks, cid, eid, loadTasks])
-
-  useEffect(() => () => { if (pollingRef.current) clearInterval(pollingRef.current) }, [])
+  // WebSocket — real-time task + employee updates
+  const hasActiveTask = tasks.some(t => t.status === 'pending' || t.status === 'running')
+  useTaskSocket(cid, !loading, {
+    onTaskUpdate: useCallback((patch: TaskPatch) => {
+      if (patch.employee_id !== eid) return
+      setTasks(prev => prev.map(t => t.id === patch.id ? { ...t, ...patch } : t))
+    }, [eid]),
+    onEmployeeUpdate: useCallback((patch: EmployeePatch) => {
+      if (patch.id !== eid) return
+      setEmployee(prev => prev ? { ...prev, ...patch } : prev)
+    }, [eid]),
+  })
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [tasks])
 
   async function send(msg?: string) {
