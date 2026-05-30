@@ -1,12 +1,14 @@
 import os
 import logging
-import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
-from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect, Query as WsQuery
+from fastapi import FastAPI, Depends, Request, WebSocket, WebSocketDisconnect, Query as WsQuery
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from sqlalchemy.orm import Session
 from backend.database import init_db, get_db
@@ -20,21 +22,20 @@ from backend import models, schemas
 _log = logging.getLogger("startup")
 logging.basicConfig(level=logging.INFO)
 
+# Rate limiter (keyed by client IP)
+limiter = Limiter(key_func=get_remote_address)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Modern FastAPI lifespan handler replacing deprecated @app.on_event."""
-    _log.info(f"DATABASE_URL starts with: {os.getenv('DATABASE_URL', 'NOT SET')[:30]}")
     _log.info(f"SECRET_KEY set: {bool(os.getenv('SECRET_KEY'))}")
 
     from backend.core.config import validate_settings
     try:
         validate_settings()
     except RuntimeError as e:
-        _log.error(f"validate_settings failed: {e}")
-        from backend.core import config as _cfg
-        _cfg.settings.SECRET_KEY = secrets.token_hex(32)
-        _log.warning("Generated runtime SECRET_KEY — set SECRET_KEY env var to persist this")
+        _log.error(f"STARTUP FAILED — {e}")
+        raise  # Hard fail — do not start with insecure config
 
     try:
         init_db()
@@ -43,12 +44,31 @@ async def lifespan(app: FastAPI):
         _log.error(f"init_db failed: {type(e).__name__}: {e}")
         _log.warning("Database init failed — app will start but DB operations may fail")
 
-    yield  # App is running
-
-    # Shutdown (nothing needed)
+    yield
 
 
-app = FastAPI(title="AI Company Platform", version="1.0.0", lifespan=lifespan)
+_is_production = not settings.DATABASE_URL.startswith("sqlite")
+app = FastAPI(
+    title="AI Company Platform",
+    version="1.0.0",
+    lifespan=lifespan,
+    openapi_url=None if _is_production else "/openapi.json",
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None,
+)
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 
 @app.get("/api/health", tags=["health"])
@@ -68,8 +88,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # API routes

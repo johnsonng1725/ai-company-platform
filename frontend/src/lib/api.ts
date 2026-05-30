@@ -32,12 +32,20 @@ function qs(params: Record<string, string | number | undefined>) {
 // ── Auth ─────────────────────────────────────────────────────────────────────
 export const auth = {
   register: (email: string, password: string, full_name: string) =>
-    request<{ access_token: string; user: User }>('/auth/register', {
+    request<{ detail: string }>('/auth/register', {
       method: 'POST', body: JSON.stringify({ email, password, full_name }),
     }),
   login: (email: string, password: string) =>
     request<{ access_token: string; user: User }>('/auth/login', {
       method: 'POST', body: JSON.stringify({ email, password }),
+    }),
+  sendCode: (email: string, purpose: 'signup' | 'login') =>
+    request<{ detail: string }>('/auth/send-code', {
+      method: 'POST', body: JSON.stringify({ email, purpose }),
+    }),
+  verifyCode: (email: string, code: string, purpose: 'signup' | 'login') =>
+    request<{ access_token: string; user: User }>('/auth/verify-code', {
+      method: 'POST', body: JSON.stringify({ email, code, purpose }),
     }),
   me: () => request<User>('/auth/me'),
   updatePlan: (plan: string) =>

@@ -17,10 +17,23 @@ class User(Base):
     google_id = Column(String, nullable=True, unique=True, index=True)
     facebook_id = Column(String, nullable=True, unique=True, index=True)
     is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)      # email verified
     plan = Column(String, default="trial")  # trial | starter | pro | max
     created_at = Column(DateTime, default=datetime.utcnow)
 
     companies = relationship("Company", back_populates="owner", cascade="all, delete")
+
+
+class EmailVerification(Base):
+    __tablename__ = "email_verifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, nullable=False, index=True)
+    code = Column(String(6), nullable=False)
+    purpose = Column(String, default="signup")   # signup | login
+    used = Column(Boolean, default=False)
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class Company(Base):

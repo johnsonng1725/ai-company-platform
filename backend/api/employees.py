@@ -70,8 +70,10 @@ def update_employee(
     db: Session = Depends(get_db),
 ):
     emp = _get_emp(employee_id, company_id, current_user, db)
+    _ALLOWED = {"name", "role", "role_emoji", "description", "capabilities", "schedule_cron", "config", "is_active"}
     for field, value in data.model_dump(exclude_none=True).items():
-        setattr(emp, field, value)
+        if field in _ALLOWED:
+            setattr(emp, field, value)
     db.commit()
     db.refresh(emp)
     return emp

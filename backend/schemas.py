@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional, List, Any, Dict
-from pydantic import BaseModel, EmailStr
+from typing import Optional, List, Any, Dict, Literal
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 # ── Auth ────────────────────────────────────────────────────────────────────
@@ -10,16 +10,45 @@ class UserRegister(BaseModel):
     password: str
     full_name: str = ""
 
+    @field_validator("password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Password must contain at least one number")
+        return v
+
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
 
+class SendCodeRequest(BaseModel):
+    email: EmailStr
+    purpose: Literal["signup", "login"] = "login"
+
+
+class VerifyCodeRequest(BaseModel):
+    email: EmailStr
+    code: str
+    purpose: Literal["signup", "login"] = "login"
+
+    @field_validator("code")
+    @classmethod
+    def code_format(cls, v: str) -> str:
+        v = v.strip()
+        if not v.isdigit() or len(v) != 6:
+            raise ValueError("Code must be exactly 6 digits")
+        return v
+
+
 class UserOut(BaseModel):
     id: int
     email: str
     full_name: str
+    is_verified: bool = False
     plan: str = "free"
     created_at: datetime
 
