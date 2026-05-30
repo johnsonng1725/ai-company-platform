@@ -1,4 +1,8 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
+use enigo::{
+    Button, Coordinate, Direction,
+    Enigo, Key, Keyboard, Mouse, Settings,
+};
 use screenshots::Screen;
 use serde::{Deserialize, Serialize};
 use std::process::Command;
@@ -21,6 +25,7 @@ pub struct ScreenshotResult {
 pub struct ClickPayload {
     pub x: f64,
     pub y: f64,
+    pub button: Option<String>,  // "left" (default) | "right"
 }
 
 #[derive(Deserialize)]
@@ -49,37 +54,57 @@ fn capture_screen() -> Result<ScreenshotResult, String> {
     })
 }
 
-/// Move the mouse cursor to (x, y) — cross-platform via enigo (future).
-/// For now returns ok so the frontend loop works end-to-end.
+/// Move the mouse cursor to absolute (x, y).
 #[tauri::command]
 fn mouse_move(x: f64, y: f64) -> Result<(), String> {
-    // TODO: enigo integration in Phase 3
-    let _ = (x, y);
-    Ok(())
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
+    enigo.move_mouse(x as i32, y as i32, Coordinate::Abs).map_err(|e| e.to_string())
 }
 
-/// Click at (x, y).
+/// Move to (x, y) then click (left by default, right if button == "right").
 #[tauri::command]
 fn mouse_click(payload: ClickPayload) -> Result<(), String> {
-    let _ = payload;
-    // TODO: enigo integration in Phase 3
-    Ok(())
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
+    enigo.move_mouse(payload.x as i32, payload.y as i32, Coordinate::Abs).map_err(|e| e.to_string())?;
+    let btn = if payload.button.as_deref() == Some("right") { Button::Right } else { Button::Left };
+    enigo.button(btn, Direction::Click).map_err(|e| e.to_string())
 }
 
-/// Type text using the keyboard.
+/// Type a string of text using the keyboard.
 #[tauri::command]
 fn keyboard_type(payload: TypePayload) -> Result<(), String> {
-    let _ = payload;
-    // TODO: enigo integration in Phase 3
-    Ok(())
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
+    enigo.text(&payload.text).map_err(|e| e.to_string())
 }
 
-/// Press a single key (e.g. "Return", "Escape", "Tab").
+/// Press a single named key (e.g. "Return", "Escape", "Tab").
 #[tauri::command]
 fn keyboard_key(key: String) -> Result<(), String> {
-    let _ = key;
-    // TODO: enigo integration in Phase 3
-    Ok(())
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| e.to_string())?;
+    let k = match key.as_str() {
+        "Return" | "Enter"    => Key::Return,
+        "Escape" | "Esc"      => Key::Escape,
+        "Tab"                 => Key::Tab,
+        "Backspace"           => Key::Backspace,
+        "Delete"              => Key::Delete,
+        "Space"               => Key::Space,
+        "Up"    | "ArrowUp"   => Key::UpArrow,
+        "Down"  | "ArrowDown" => Key::DownArrow,
+        "Left"  | "ArrowLeft" => Key::LeftArrow,
+        "Right" | "ArrowRight"=> Key::RightArrow,
+        "Home"                => Key::Home,
+        "End"                 => Key::End,
+        "PageUp"              => Key::PageUp,
+        "PageDown"            => Key::PageDown,
+        "F1"  => Key::F1,  "F2"  => Key::F2,  "F3"  => Key::F3,  "F4"  => Key::F4,
+        "F5"  => Key::F5,  "F6"  => Key::F6,  "F7"  => Key::F7,  "F8"  => Key::F8,
+        "F9"  => Key::F9,  "F10" => Key::F10, "F11" => Key::F11, "F12" => Key::F12,
+        other => {
+            let ch = other.chars().next().ok_or_else(|| "empty key".to_string())?;
+            Key::Unicode(ch)
+        }
+    };
+    enigo.key(k, Direction::Click).map_err(|e| e.to_string())
 }
 
 /// Open an application by name — works on macOS (open -a), Linux (xdg-open),

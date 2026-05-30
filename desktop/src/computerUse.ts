@@ -38,8 +38,10 @@ export async function executeAction(action: ComputerAction): Promise<void> {
       await invoke('mouse_move', { x: action.x ?? 0, y: action.y ?? 0 })
       break
     case 'left_click':
+      await invoke('mouse_click', { payload: { x: action.x ?? 0, y: action.y ?? 0, button: 'left' } })
+      break
     case 'right_click':
-      await invoke('mouse_click', { payload: { x: action.x ?? 0, y: action.y ?? 0 } })
+      await invoke('mouse_click', { payload: { x: action.x ?? 0, y: action.y ?? 0, button: 'right' } })
       break
     case 'type':
       await invoke('keyboard_type', { payload: { text: action.text ?? '' } })
