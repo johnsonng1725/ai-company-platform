@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from backend.database import init_db, get_db
 from backend.api import auth, company, employees, proposals, activity, tasks, meetings, oauth
+from backend.api.computer_use import router as computer_use_router
 from backend.api.company import get_company
 from backend.core.auth import get_current_user
 from backend.core.config import settings
@@ -80,6 +81,7 @@ app.include_router(proposals.router)
 app.include_router(activity.router)
 app.include_router(tasks.router)
 app.include_router(meetings.router)
+app.include_router(computer_use_router)
 
 
 # Auth /me endpoint (needs proper dependency injection)
